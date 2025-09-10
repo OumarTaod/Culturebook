@@ -1,0 +1,86 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-decoration: none;
+  color: var(--color-text);
+  letter-spacing: 0.2px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navbar-nav {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  gap: 18px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--color-muted);
+  font-size: 1rem;
+  padding: 8px 0;
+  position: relative;
+  font-weight: 600;
+}
+
+.nav-link:hover { color: var(--color-text); }
+
+.nav-link.active {
+  color: var(--color-text);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.logout-button {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  transition: filter 0.2s ease, transform .06s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.logout-button:hover {
+  filter: brightness(1.05);
+}
+
+.logout-button:active { transform: translateY(1px); }

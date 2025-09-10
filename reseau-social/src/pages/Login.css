@@ -1,0 +1,107 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+.login-box {
+  background: white;
+  padding: 2rem 3rem;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-box .brand-title {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.login-box h2 {
+  margin-bottom: 1.5rem;
+  color: #555;
+  font-weight: 400;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #0095f6;
+  box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.25);
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #0095f6;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: #007bcf;
+}
+
+.toggle-button {
+  margin-top: 1rem;
+  background: none;
+  border: none;
+  color: #0095f6;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.guest-button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #0095f6;
+  border-radius: 4px;
+  background-color: white;
+  color: #0095f6;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guest-button:hover {
+  background-color: rgba(0, 149, 246, 0.1);
+}
+
+.error-message {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
