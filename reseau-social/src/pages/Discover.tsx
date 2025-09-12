@@ -12,7 +12,6 @@ const Discover = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hasMore, setHasMore] = useState(false);
@@ -20,13 +19,11 @@ const Discover = () => {
   const [onlyNotFollowed, setOnlyNotFollowed] = useState(true);
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
 
-  const debouncedQuery = useDebounce(query, 400);
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/users?page=${page}&limit=${PAGE_SIZE}&q=${encodeURIComponent(debouncedQuery)}`);
+        const res = await api.get(`/users?page=${page}&limit=${PAGE_SIZE}`);
         const data = res.data;
         let list: User[] = data.data || [];
 
@@ -53,7 +50,7 @@ const Discover = () => {
       }
     };
     fetchUsers();
-  }, [page, debouncedQuery, sort, onlyNotFollowed, followingIds]);
+  }, [page, sort, onlyNotFollowed, followingIds]);
 
   useEffect(() => {
     const fetchFollowing = async () => {
@@ -83,12 +80,6 @@ const Discover = () => {
     <div className="discover-container">
       <h2>Découvrir des personnes</h2>
       <div className="discover-toolbar">
-        <input
-          type="search"
-          placeholder="Rechercher par nom ou email..."
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-        />
         <select value={sort} onChange={(e) => setSort(e.target.value as SortOption)}>
           <option value="name_asc">Nom A→Z</option>
           <option value="name_desc">Nom Z→A</option>
@@ -121,15 +112,6 @@ const Discover = () => {
     </div>
   );
 };
-
-function useDebounce<T>(value: T, delay = 300) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return debounced;
-}
 
 export default Discover;
 

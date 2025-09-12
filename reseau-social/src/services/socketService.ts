@@ -16,12 +16,22 @@ interface Message {
   createdAt: string;
 }
 
+interface NotificationEvent {
+  _id: string;
+  type: 'like' | 'comment' | 'follow' | string;
+  sender: { _id: string; name: string };
+  post?: { _id: string; textContent?: string };
+  read?: boolean;
+  createdAt: string;
+}
+
 class SocketService {
   private socket: Socket | null = null;
   private messageHandlers: ((message: Message) => void)[] = [];
   private typingHandlers: ((data: { userId: string; name: string }) => void)[] = [];
   private stopTypingHandlers: ((data: { userId: string }) => void)[] = [];
   private onlineUsersHandlers: ((users: string[]) => void)[] = [];
+  private notificationHandlers: ((notif: NotificationEvent) => void)[] = [];
 
   connect() {
     if (this.socket?.connected) return;
@@ -41,12 +51,17 @@ class SocketService {
       console.error('Erreur de connexion Socket.IO:', error);
     });
 
-    // Le backend émet directement l'objet message
+    // Messages
     this.socket.on('newMessage', (message: Message) => {
       this.messageHandlers.forEach((handler) => handler(message));
     });
 
-    // Événements potentiels non implémentés côté backend, conservés pour compatibilité future
+    // Notifications
+    this.socket.on('newNotification', (notif: NotificationEvent) => {
+      this.notificationHandlers.forEach((handler) => handler(notif));
+    });
+
+    // Optionnels
     this.socket.on('userTyping', (data) => {
       this.typingHandlers.forEach((handler) => handler(data));
     });
@@ -67,13 +82,13 @@ class SocketService {
     }
   }
 
-  // Le backend attend receiverId et content
+  // The backend expects receiverId and content
   sendMessage(receiverId: string, content: string) {
     if (!this.socket?.connected) return;
     this.socket.emit('sendMessage', { receiverId, content });
   }
 
-  // Typing helpers (non pris en charge côté backend actuel)
+  // Typing helpers (not supported yet on backend)
   startTyping(conversationId: string) {
     if (!this.socket?.connected) return;
     this.socket.emit('typing', { conversationId });
@@ -88,6 +103,13 @@ class SocketService {
     this.messageHandlers.push(handler);
     return () => {
       this.messageHandlers = this.messageHandlers.filter((h) => h !== handler);
+    };
+  }
+
+  onNotification(handler: (notif: NotificationEvent) => void) {
+    this.notificationHandlers.push(handler);
+    return () => {
+      this.notificationHandlers = this.notificationHandlers.filter((h) => h !== handler);
     };
   }
 

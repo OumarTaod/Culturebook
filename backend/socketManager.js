@@ -6,6 +6,9 @@ const Conversation = require('./models/Conversation');
 let onlineUsers = new Map(); // Map pour stocker userId -> socketId
 
 const initializeSocket = (io) => {
+    // Expose onlineUsers on io for controllers (if needed)
+    io.onlineUsers = onlineUsers;
+
     // Middleware d'authentification pour Socket.IO
     io.use(async (socket, next) => {
         const token = socket.handshake.auth.token;
@@ -28,7 +31,7 @@ const initializeSocket = (io) => {
     io.on('connection', (socket) => {
         console.log(`Un utilisateur s'est connecté: ${socket.user.name} (${socket.id})`);
 
-        // Chaque utilisateur rejoint une room privée avec son ID pour les notifications ciblées
+        // Room privée pour notifications ciblées
         socket.join(socket.user.id.toString());
 
         // Ajouter l'utilisateur à la liste des utilisateurs en ligne
@@ -67,6 +70,7 @@ const initializeSocket = (io) => {
             io.emit('onlineUsers', Array.from(onlineUsers.keys()));
         });
     });
+
     return onlineUsers;
 };
 
