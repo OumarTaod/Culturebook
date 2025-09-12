@@ -4,7 +4,8 @@ const {
   getPosts,
   likerPost,
   ajouterCommentaire,
-  getCommentaires
+  getCommentaires,
+  supprimerPost
 } = require('../controllers/postController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -21,5 +22,8 @@ router.route('/:id/vote')
 router.route('/:id/comments')
     .get(getCommentaires)
     .post(protect, ajouterCommentaire);
+
+router.route('/:id')
+    .delete(protect, supprimerPost);
 
 module.exports = router;

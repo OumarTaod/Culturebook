@@ -148,6 +148,7 @@ const Home = () => {
                 post={post}
                 onLikeToggle={handleLikeToggle}
                 onCommentSubmit={handleCommentSubmit}
+                onDelete={(postId) => setPosts(prev => prev.filter(p => p._id !== postId))}
               />
             </div>
           ))

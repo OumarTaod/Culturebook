@@ -187,3 +187,37 @@ exports.getCommentaires = asyncHandler(async (req, res, next) => {
         data: post.comments,
     });
 });
+
+/**
+ * @desc    Supprimer un post
+ * @route   DELETE /api/posts/:id
+ * @access  Private
+ */
+exports.supprimerPost = asyncHandler(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+        return next(new ErrorResponse(`Post non trouvé avec l'id ${req.params.id}`, 404));
+    }
+
+    // Vérifier que l'utilisateur est le propriétaire du post
+    if (post.author.toString() !== req.user.id) {
+        return next(new ErrorResponse('Non autorisé à supprimer ce post', 403));
+    }
+
+    // Supprimer tous les commentaires associés
+    if (post.comments && post.comments.length > 0) {
+        await Commentaire.deleteMany({ _id: { $in: post.comments } });
+    }
+
+    // Supprimer toutes les notifications associées
+    await Notification.deleteMany({ post: post._id });
+
+    // Supprimer le post
+    await Post.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+        success: true,
+        message: 'Post supprimé avec succès'
+    });
+});

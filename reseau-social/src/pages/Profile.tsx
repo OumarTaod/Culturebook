@@ -570,6 +570,7 @@ const Profile = () => {
               post={post} // Données de la publication
               onLikeToggle={() => handleLikeToggle(post._id)} // Callback pour les likes
               onCommentSubmit={(content: string) => handleCommentSubmit(post._id, content)} // Callback pour les commentaires
+              onDelete={(postId) => setUserPosts(prev => prev.filter(p => p._id !== postId))} // Callback pour supprimer
             />
           ))
         ) : (

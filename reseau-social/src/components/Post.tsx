@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import './Post.css';
 import type { PostType } from '../types';
 import { useAuth } from '../auth/AuthContext';
@@ -18,6 +18,7 @@ interface PostProps {
   };
   onLikeToggle: (postId: string) => void; // non utilisé (géré localement)
   onCommentSubmit: (postId: string, content: string) => Promise<any> | void; // non utilisé (géré localement)
+  onDelete?: (postId: string) => void; // Callback pour supprimer le post
 }
 
 interface BackendComment {
@@ -37,13 +38,15 @@ function detectMediaType(url: string): 'image' | 'video' | 'audio' | null {
   return null;
 }
 
-const Post = ({ post }: PostProps) => {
+const Post = ({ post, onDelete }: PostProps) => {
   const { user } = useAuth();
   const [commentsVisible, setCommentsVisible] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState<BackendComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [likePending, setLikePending] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const authorId = post.author?._id || 'anon';
   const authorName = post.author?.name || 'Anonyme';
@@ -60,6 +63,17 @@ const Post = ({ post }: PostProps) => {
     setLiked(initialLiked);
     setLikesCount(likeIds.length);
   }, [initialLiked, likeIds]);
+
+  // Fermer le menu au clic extérieur
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleToggleComments = async () => {
     if (!commentsVisible) {
@@ -107,6 +121,22 @@ const Post = ({ post }: PostProps) => {
     }
   };
 
+  const handleDeletePost = async () => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')) {
+      try {
+        await api.delete(`/posts/${post._id}`);
+        onDelete?.(post._id);
+        setShowMenu(false);
+      } catch (err: any) {
+        console.error('Erreur de suppression:', err);
+        const errorMessage = err.response?.data?.message || 'Erreur lors de la suppression';
+        alert(errorMessage);
+      }
+    }
+  };
+
+  const isOwnPost = user && post.author?._id === user._id;
+
   const renderMedia = () => {
     // Supporte plusieurs schémas de backend: mediaUrl, imageUrl, videoUrl, audioUrl
     const anyPost: any = post as any;
@@ -146,6 +176,24 @@ const Post = ({ post }: PostProps) => {
           <Link to={`/profile/${authorId}`} className="post-author-name">{authorName}</Link>
           <span className="post-type">{post.type || ''} · {post.language || ''} · {post.region || ''}</span>
         </div>
+        {isOwnPost && (
+          <div className="post-menu-container" ref={menuRef}>
+            <button 
+              onClick={() => setShowMenu(!showMenu)} 
+              className="post-menu-button"
+              aria-label="Options de la publication"
+            >
+              ⋯
+            </button>
+            {showMenu && (
+              <div className="post-menu">
+                <button onClick={handleDeletePost} className="post-menu-item delete">
+                  🗑️ Supprimer
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="post-content">
         <p>{post.textContent || (post as any).content || ''}</p>
