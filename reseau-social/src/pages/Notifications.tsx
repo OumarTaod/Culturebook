@@ -18,11 +18,13 @@ interface Notification {
     _id: string;
     name: string;
     profilePicture?: string;
+    avatarUrl?: string;
   };
   post?: {
     _id: string;
     textContent: string;
     mediaUrl?: string;
+    imageUrl?: string;
   };
   read: boolean;
   createdAt: string;
@@ -35,6 +37,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [modalNotif, setModalNotif] = useState<Notification | null>(null);
 
   const hasUnread = useMemo(() => notifications.some(n => !n.read), [notifications]);
 
@@ -78,6 +81,21 @@ const Notifications = () => {
     };
   }, []);
 
+  // Auto-mark all as read when opening the page
+  useEffect(() => {
+    const markAll = async () => {
+      try {
+        if (notifications.some(n => !n.read)) {
+          await api.patch('/notifications/read');
+          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    markAll();
+  }, [notifications]);
+
   const markAsRead = useCallback(async () => {
     const previousNotifications = [...notifications];
     // Mise à jour optimiste
@@ -104,9 +122,9 @@ const Notifications = () => {
         await api.patch(`/notifications/${notification._id}/read`);
       }
 
-      // Naviguer vers la ressource appropriée
+      // Ouvrir une modale d'aperçu si c'est un like/commentaire lié à un post
       if (notification.post) {
-        navigate(`/post/${notification.post._id}`);
+        setModalNotif(notification);
       } else if (notification.type === NOTIFICATION_TYPES.FOLLOW) {
         navigate(`/profile/${notification.sender._id}`);
       }
@@ -117,6 +135,15 @@ const Notifications = () => {
       console.error(err);
     }
   }, [navigate, notifications]);
+
+  const closeModal = () => setModalNotif(null);
+  const openPost = () => {
+    if (modalNotif?.post?._id) {
+      const pid = modalNotif.post._id;
+      setModalNotif(null);
+      navigate(`/post/${pid}`);
+    }
+  };
 
   const getNotificationText = (notification: Notification) => {
     switch (notification.type) {
@@ -149,30 +176,20 @@ const Notifications = () => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
 
-    // Moins d'une minute
-    if (diff < 60000) {
-      return 'À l\'instant';
-    }
-
-    // Moins d'une heure
+    if (diff < 60000) return 'À l\'instant';
     if (diff < 3600000) {
       const minutes = Math.floor(diff / 60000);
       return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
     }
-
-    // Moins d'un jour
     if (diff < 86400000) {
       const hours = Math.floor(diff / 3600000);
       return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
     }
-
-    // Moins d'une semaine
     if (diff < 604800000) {
       const days = Math.floor(diff / 86400000);
       return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
     }
 
-    // Plus d'une semaine
     return date.toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
@@ -210,18 +227,27 @@ const Notifications = () => {
               aria-label={`Notification de ${notification.sender.name}: ${getNotificationText(notification)}`}
             >
               <div className="notification-icon">
-                {getNotificationIcon(notification.type)}
+                {notification.sender?.avatarUrl ? (
+                  <img src={notification.sender.avatarUrl} alt={notification.sender.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  getNotificationIcon(notification.type)
+                )}
               </div>
               <div className="notification-content">
                 <p className="notification-text">
                   {getNotificationText(notification)}
                 </p>
                 {notification.post && (
-                  <p className="notification-preview">
-                    {notification.post.textContent.length > 100
-                      ? `${notification.post.textContent.substring(0, 100)}...`
-                      : notification.post.textContent}
-                  </p>
+                  <div className="notification-preview-wrap">
+                    {notification.post.imageUrl && (
+                      <img src={notification.post.imageUrl} alt="aperçu" className="notification-thumb" />
+                    )}
+                    <p className="notification-preview">
+                      {notification.post.textContent.length > 100
+                        ? `${notification.post.textContent.substring(0, 100)}...`
+                        : notification.post.textContent}
+                    </p>
+                  </div>
                 )}
                 <span className="notification-time">
                   {formatDate(notification.createdAt)}
@@ -237,6 +263,32 @@ const Notifications = () => {
       </div>
 
       {error && <div className="error-message">{error}</div>}
+
+      {modalNotif && (
+        <div className="notif-modal-overlay" onClick={closeModal}>
+          <div className="notif-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="notif-modal-header">
+              <h3>{getNotificationText(modalNotif)}</h3>
+              <button className="notif-modal-close" onClick={closeModal}>✕</button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {modalNotif.sender?.avatarUrl && (
+                <img src={modalNotif.sender.avatarUrl} alt={modalNotif.sender.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+              )}
+              <strong>{modalNotif.sender?.name}</strong>
+            </div>
+            {modalNotif.post?.imageUrl && (
+              <img src={modalNotif.post.imageUrl} alt="aperçu" className="notif-modal-image" />
+            )}
+            {modalNotif.post?.textContent && (
+              <p className="notif-modal-text">{modalNotif.post.textContent}</p>
+            )}
+            <div className="notif-modal-actions">
+              <button onClick={openPost} className="open-post-btn">Ouvrir la publication</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

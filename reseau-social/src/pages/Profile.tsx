@@ -21,6 +21,7 @@ const Profile = () => {
   const [avatar, setAvatar] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
   const [startingConversation, setStartingConversation] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const resolvedUserId = userId || currentUser?._id || '';
   const isOwnProfile = currentUser?._id === resolvedUserId;
@@ -67,15 +68,51 @@ const Profile = () => {
     setBio(e.target.value);
   };
 
+  const uploadPartial = async (formData: FormData) => {
+    if (!resolvedUserId) return;
+    setUploading(true);
+    try {
+      const response = await api.patch(`/users/${resolvedUserId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const updated = response.data?.data || response.data;
+      setProfileUser(updated);
+    } catch (err) {
+      setError('Impossible de mettre à jour le profil.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setAvatar(e.target.files[0]);
+      const file = e.target.files[0];
+      setAvatar(file);
+      // Optimistic preview
+      if (profileUser) {
+        const url = URL.createObjectURL(file);
+        setProfileUser({ ...profileUser, avatarUrl: url });
+      }
+      // Auto-upload
+      const fd = new FormData();
+      fd.append('avatar', file);
+      uploadPartial(fd);
     }
   };
 
   const handleCoverChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setCover(e.target.files[0]);
+      const file = e.target.files[0];
+      setCover(file);
+      // Optimistic preview
+      if (profileUser) {
+        const url = URL.createObjectURL(file);
+        setProfileUser({ ...profileUser, coverUrl: url });
+      }
+      // Auto-upload
+      const fd = new FormData();
+      fd.append('cover', file);
+      uploadPartial(fd);
     }
   };
 
@@ -90,6 +127,11 @@ const Profile = () => {
       }
       if (cover) {
         formData.append('cover', cover);
+      }
+
+      if ([...formData.keys()].length === 0) {
+        setIsEditing(false);
+        return;
       }
 
       const response = await api.patch(`/users/${resolvedUserId}`, formData, {
@@ -165,7 +207,7 @@ const Profile = () => {
         {isOwnProfile && (
           <label className="cover-upload">
             <input type="file" accept="image/*" onChange={handleCoverChange} hidden />
-            📷 Modifier la couverture
+            {uploading ? 'Envoi…' : '📷 Modifier la couverture'}
           </label>
         )}
       </div>
@@ -180,7 +222,7 @@ const Profile = () => {
           {isOwnProfile && (
             <label className="avatar-overlay">
               <input type="file" accept="image/*" onChange={handleAvatarChange} hidden />
-              📷
+              {uploading ? '…' : '📷'}
             </label>
           )}
         </div>
@@ -200,6 +242,7 @@ const Profile = () => {
             <button
               onClick={() => (isEditing ? handleProfileUpdate() : setIsEditing(true))}
               className="edit-button"
+              disabled={uploading}
             >
               {isEditing ? 'Enregistrer' : 'Modifier le profil'}
             </button>

@@ -9,8 +9,8 @@ const ErrorResponse = require('../utils/errorResponse');
  */
 exports.getNotifications = asyncHandler(async (req, res, next) => {
   const notifications = await Notification.find({ recipient: req.user.id })
-    .populate('sender', 'name')
-    .populate('post', 'textContent')
+    .populate('sender', 'name avatarUrl')
+    .populate('post', 'textContent imageUrl')
     .sort({ createdAt: -1 });
 
   res.status(200).json({

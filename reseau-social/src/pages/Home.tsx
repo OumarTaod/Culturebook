@@ -3,8 +3,9 @@ import Post from '../components/Post';
 import CreatePost from '../components/CreatePost';
 import api from '../services/api';
 import Spinner from '../components/Spinner';
-import type { PostType, User } from '../types';
+import type { PostType } from '../types';
 import './Home.css';
+import { useAuth } from '../auth/AuthContext';
 
 const LIMIT = 10;
 
@@ -15,9 +16,8 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState('');
-  const [suggestions, setSuggestions] = useState<User[]>([]);
-  const [following, setFollowing] = useState<User[]>([]);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const { user } = useAuth();
 
   const fetchPosts = useCallback(async (pageToLoad: number) => {
     try {
@@ -39,20 +39,19 @@ const Home = () => {
     }
   }, []);
 
-  const fetchSideData = useCallback(async () => {
-    try {
-      const [sug, foll] = await Promise.all([
-        api.get('/users/suggestions'),
-        api.get('/users/following')
-      ]);
-      setSuggestions(sug.data?.data || sug.data || []);
-      setFollowing(foll.data?.data || foll.data || []);
-    } catch (e) {
-      // silent
-    }
-  }, []);
+  useEffect(() => { fetchPosts(1); }, [fetchPosts]);
 
-  useEffect(() => { fetchPosts(1); fetchSideData(); }, [fetchPosts, fetchSideData]);
+  // Si l'utilisateur met à jour son avatar (dans le profil), mettre à jour instantanément dans le feed
+  useEffect(() => {
+    if (!user?.avatarUrl || !user?._id) return;
+    setPosts((prev) => prev.map((p) => {
+      const author: any = (p as any).author;
+      if (author && (author._id === user._id)) {
+        return { ...p, author: { ...author, avatarUrl: user.avatarUrl } } as PostType;
+      }
+      return p;
+    }));
+  }, [user?._id, user?.avatarUrl]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -132,55 +131,51 @@ const Home = () => {
         <div className="card">
           <h3>Suggestions</h3>
           <ul className="suggestions">
-            {suggestions.slice(0, 8).map(u => (
-              <li key={u._id} className="suggestion-item">
-                <div className="avatar" />
-                <span className="name">{u.name}</span>
-              </li>
-            ))}
-            {suggestions.length === 0 && <li className="muted">Aucune suggestion</li>}
+            {/* Chargées dans Home.tsx plus tôt si on souhaite */}
           </ul>
         </div>
       </aside>
 
       <section className="home-center">
-        <CreatePost onPostSubmit={handleCreatePost} />
-        <div className="posts-container">
-          {posts.length > 0 ? (
-            posts.map(post => (
-              <div key={post._id} className="fade-in">
-                <Post
-                  post={post}
-                  onLikeToggle={handleLikeToggle}
-                  onCommentSubmit={handleCommentSubmit}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="no-posts-message">Aucune publication pour le moment.</div>
-          )}
-          {hasMore && (
-            <div ref={sentinelRef} style={{ height: 1 }} />
-          )}
-          {isLoadingMore && (
-            <div className="small muted" style={{ textAlign: 'center', padding: '16px' }}>
-              Chargement...
+        <div className="stories-strip">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="story-card">
+              <div className="story-avatar" />
+              <div className="story-name">Story</div>
             </div>
-          )}
+          ))}
         </div>
+      <CreatePost onPostSubmit={handleCreatePost} />
+      <div className="posts-container">
+        {posts.length > 0 ? (
+          posts.map(post => (
+            <div key={post._id} className="fade-in">
+              <Post
+                post={post}
+                onLikeToggle={handleLikeToggle}
+                onCommentSubmit={handleCommentSubmit}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="no-posts-message">Aucune publication pour le moment.</div>
+        )}
+        {hasMore && (
+          <div ref={sentinelRef} style={{ height: 1 }} />
+        )}
+        {isLoadingMore && (
+          <div className="small muted" style={{ textAlign: 'center', padding: '16px' }}>
+            Chargement...
+          </div>
+        )}
+      </div>
       </section>
 
       <aside className="home-right">
         <div className="card">
           <h3>Contacts</h3>
           <ul className="contacts">
-            {following.map(u => (
-              <li key={u._id} className="contact-item">
-                <div className="status-dot online" />
-                <span className="name">{u.name}</span>
-              </li>
-            ))}
-            {following.length === 0 && <li className="muted">Aucun contact</li>}
+            {/* Liste des contacts suivis si souhaité */}
           </ul>
         </div>
       </aside>
