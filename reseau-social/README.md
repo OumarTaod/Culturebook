@@ -1,69 +1,78 @@
-# React + TypeScript + Vite
+# CultureBook – Monorepo (Frontend + Backend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application complète du réseau social CultureBook.
 
-Currently, two official plugins are available:
+- Frontend: React + Vite + TypeScript (`reseau-social/`)
+- Backend: Node.js + Express + MongoDB + Socket.IO (`reseau-social/backend/`)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Prérequis
+- Node.js LTS (>= 18 recommandé)
+- MongoDB en local (ou URI cloud)
 
-## Expanding the ESLint configuration
+## Installation rapide
+```bash
+# Backend
+cd reseau-social/backend
+npm install
+cp .env.example .env
+# Éditez .env et ajustez MONGO_URI et JWT_SECRET si besoin
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Frontend (dans un autre terminal)
+cd reseau-social
+npm install
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Configuration (.env)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Backend `reseau-social/backend/.env`:
 ```
+NODE_ENV=production
+PORT=5050
+MONGO_URI=mongodb://localhost:27017/culturebook
+JWT_SECRET=remplacez_par_une_chaine_longue_et_secrete
+```
+
+Frontend `reseau-social/.env`:
+```
+VITE_API_BASE_URL=http://localhost:5050/api
+VITE_API_URL=http://localhost:5050
+```
+
+## Lancement
+```bash
+# Backend (port 5050)
+cd reseau-social/backend
+npm start
+
+# Frontend (port Vite ~5173)
+cd reseau-social
+npm run dev
+```
+
+Backend disponible sur `http://localhost:5050`, Frontend sur l’URL affichée par Vite (ex. `http://localhost:5173`).
+
+## Fonctionnalités principales
+- Authentification (inscription, connexion, profil via `GET /api/auth/profile`)
+- Fil d’actualité: posts (texte + média image/vidéo/audio), likes, commentaires
+- Notifications (lecture, marquer comme lues)
+- Messagerie en temps réel via Socket.IO
+
+## Endpoints consommés par le frontend
+- Auth: `POST /auth/register`, `POST /auth/login`, `GET /auth/profile`
+- Posts: `GET /posts`, `POST /posts`, `PATCH /posts/:id/vote`, `GET|POST /posts/:id/comments`
+- Notifications: `GET /notifications`, `PATCH /notifications/read`
+- Messages: `GET /messages/conversations`, `GET /messages/:otherUserId`, `POST /messages`
+
+## Script admin (optionnel)
+Un script `scripts/createAdmin.js` peut exister côté backend. Si besoin, documentez son usage ici, par ex.:
+```bash
+cd reseau-social/backend
+node scripts/createAdmin.js
+```
+
+## Dépannage
+- 401 sur routes protégées: vérifiez le token (localStorage) et `JWT_SECRET`
+- Erreurs Mongo: assurez `MONGO_URI` et que MongoDB est démarré
+- Médias: le backend sert `/uploads` statiquement; les URL doivent pointer vers `/uploads/...`
+- Socket.IO: vérifiez `VITE_API_URL` et que le backend écoute sur `5050`

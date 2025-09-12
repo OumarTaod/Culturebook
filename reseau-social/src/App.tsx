@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Follow from './pages/Follow';
+import Discover from './pages/Discover';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="messages" element={<Messages />} />
           <Route path="follow" element={<Follow />} />
+          <Route path="discover" element={<Discover />} />
         </Route>
       </Route>
 

@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   avatarUrl?: string;
+  coverUrl?: string;
   bio?: string;
   stats?: {
     posts: number;
@@ -26,6 +27,8 @@ export interface PostType {
   type: 'Proverbe' | 'Conte' | 'Histoire';
   mediaType?: 'none' | 'image' | 'video' | 'audio';
   mediaUrl?: string;
+  imageUrl?: string;
+  videoUrl?: string;
   audioUrl?: string; // Legacy field for backward compatibility
   language?: string;
   region?: string;

@@ -1,0 +1,24 @@
+.discover-container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.discover-toolbar { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.discover-toolbar input { width: min(100%, 520px); padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 999px; }
+.discover-toolbar select { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
+.discover-toolbar .chk { display: inline-flex; align-items: center; gap: 6px; color: #4b5563; }
+
+.discover-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.discover-card { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+.discover-avatar img { width: 56px; height: 56px; border-radius: 999px; object-fit: cover; display: block; }
+.discover-name { font-weight: 700; color: #111827; }
+.discover-bio { font-size: 0.9rem; color: #6b7280; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.follow-btn { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+.follow-btn:hover { filter: brightness(0.95); }
+
+.discover-pagination { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 14px; }
+.discover-pagination button { border: 1px solid #e5e7eb; background: #fff; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.discover-pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 520px) {
+  .discover-card { grid-template-columns: 48px 1fr; }
+  .follow-btn { grid-column: 1 / -1; justify-self: start; }
+}
+
+

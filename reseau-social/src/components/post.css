@@ -1,1 +1,176 @@
+/* Post component styles */
+:root {
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --accent: #2563eb;
+  --like: #ef4444;
+  --shadow: 0 6px 18px rgba(0,0,0,0.08);
+  --radius: 16px;
+}
 
+* { box-sizing: border-box; }
+
+.post-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.post-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.12); }
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+.post-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: #f3f4f6;
+}
+.post-author-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.post-author-name {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.post-author-name:hover { text-decoration: underline; }
+.post-type {
+  color: var(--text-subtle);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-content {
+  padding: 6px 16px 12px 16px;
+  color: var(--text);
+}
+.post-content p {
+  margin: 8px 0 12px 0;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-media {
+  width: 100%;
+  background: #f3f4f6;
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* Avoid cropping images: show full image */
+.post-image {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+  background: #00000010;
+}
+.post-video { width: 100%; display: block; }
+.post-audio { width: 100%; display: block; margin-top: 6px; }
+
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 14px 12px;
+}
+.post-action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.post-action-button:hover { background: #f3f4f6; }
+.post-action-button.liked { color: var(--like); }
+
+/* Comments */
+.comment-section {
+  border-top: 1px solid var(--card-border);
+  padding: 12px 12px 14px 12px;
+}
+.comment-form { display: flex; gap: 8px; }
+.comment-input {
+  flex: 1;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  outline: none;
+}
+.comment-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+.comment-submit-btn {
+  border: none;
+  background: var(--accent);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.comment-submit-btn:hover { filter: brightness(0.95); }
+
+.comment-list { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.comment { display: flex; gap: 8px; }
+.comment-author { font-weight: 600; color: var(--text); }
+.comment-content { margin: 0; color: var(--text); }
+.no-comments { color: var(--text-muted); font-size: 0.95rem; }
+
+/* Helpers */
+.small { font-size: 0.9rem; }
+.muted { color: var(--text-subtle); }
+
+/* Responsive */
+@media (max-width: 520px) {
+  .post-content p { -webkit-line-clamp: 3; line-clamp: 3; }
+  .post-footer { gap: 6px; }
+  .post-action-button { padding: 8px 10px; }
+}
+
+/* Adjustments for Facebook-like feel */
+.post-footer { border-top: 1px solid var(--card-border); padding-top: 10px; }
+.post-action-button { min-width: 0; }
+.post-action-button::before { display: none; }
+
+/* Ensure media is fully responsive */
+.post-media { display: block; }
+.post-image { max-width: 100%; }
+.post-video { height: auto; max-height: 70vh; object-fit: contain; background: #00000010; }
+
+@media (max-width: 520px) {
+  .post-image { max-height: 55vh; }
+  .post-video { max-height: 55vh; }
+}
+
+/* Desktop: allow larger media height */
+@media (min-width: 1024px) {
+  .post-image { max-height: 85vh; }
+  .post-video { max-height: 85vh; }
+}

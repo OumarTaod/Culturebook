@@ -68,7 +68,10 @@ let users = [
     email: 'demo@culturebook.com',
     password: '$2b$10$rQZ9vXqZ9vXqZ9vXqZ9vXO', // password: demo123
     following: [],
-    followers: []
+    followers: [],
+    avatarUrl: '',
+    coverUrl: '',
+    bio: ''
   }
 ];
 
@@ -170,7 +173,10 @@ app.post('/api/auth/register', async (req, res) => {
       email,
       password: await bcrypt.hash(password, 10),
       following: [],
-      followers: []
+      followers: [],
+      avatarUrl: '',
+      coverUrl: '',
+      bio: ''
     };
     
     users.push(newUser);
@@ -592,6 +598,156 @@ app.post('/api/messages', authenticateToken, (req, res) => {
   } catch (error) {
     console.error('Erreur envoi message:', error);
     res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+});
+
+// Profil de l'utilisateur courant
+app.get('/api/auth/profile', authenticateToken, (req, res) => {
+  try {
+    const user = users.find(u => u._id === req.user.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+    }
+    res.json({
+      success: true,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatarUrl: user.avatarUrl || '',
+      coverUrl: user.coverUrl || '',
+      bio: user.bio || '',
+      following: user.following || [],
+      followers: user.followers || []
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+});
+
+// Récupérer un utilisateur par ID
+app.get('/api/users/:id', (req, res) => {
+  try {
+    const user = users.find(u => u._id === req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+    }
+
+    const postsCount = posts.filter(p => p.author && p.author._id === user._id).length;
+
+    res.json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl || '',
+        coverUrl: user.coverUrl || '',
+        bio: user.bio || '',
+        stats: {
+          posts: postsCount,
+          followers: (user.followers || []).length,
+          following: (user.following || []).length
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+});
+
+// Récupérer les posts d'un utilisateur
+app.get('/api/users/:id/posts', (req, res) => {
+  try {
+    const userId = req.params.id;
+    const userPosts = posts
+      .filter(p => p.author && p.author._id === userId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.json({ success: true, data: userPosts });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+});
+
+// Liste des utilisateurs (pagination + recherche)
+app.get('/api/users', (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+    const q = (req.query.q || '').toString().toLowerCase();
+
+    let list = users;
+    if (q) {
+      list = list.filter(u => (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
+    }
+
+    const total = list.length;
+    const start = (page - 1) * limit;
+    const data = list.slice(start, start + limit).map(u => ({
+      _id: u._id,
+      name: u.name,
+      email: u.email,
+      avatarUrl: u.avatarUrl || '',
+      bio: u.bio || ''
+    }));
+
+    res.json({ success: true, data, page, limit, total, hasMore: start + limit < total });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+});
+
+// Mettre à jour le profil (bio, avatar, cover)
+app.patch('/api/users/:id', authenticateToken, upload.fields([{ name: 'avatar' }, { name: 'cover' }]), (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (req.user.userId !== userId) {
+      return res.status(403).json({ success: false, message: 'Accès non autorisé' });
+    }
+
+    const user = users.find(u => u._id === userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+    }
+
+    if (typeof req.body.bio === 'string') {
+      user.bio = req.body.bio;
+    }
+
+    const files = req.files || {};
+    const avatarFile = Array.isArray(files.avatar) ? files.avatar[0] : undefined;
+    const coverFile = Array.isArray(files.cover) ? files.cover[0] : undefined;
+
+    if (avatarFile) {
+      const fileUrl = `http://localhost:${PORT}/uploads/${avatarFile.filename}`;
+      user.avatarUrl = fileUrl;
+    }
+
+    if (coverFile) {
+      const fileUrl = `http://localhost:${PORT}/uploads/${coverFile.filename}`;
+      user.coverUrl = fileUrl;
+    }
+
+    const postsCount = posts.filter(p => p.author && p.author._id === user._id).length;
+
+    const responseUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatarUrl: user.avatarUrl || '',
+      coverUrl: user.coverUrl || '',
+      bio: user.bio || '',
+      stats: {
+        posts: postsCount,
+        followers: (user.followers || []).length,
+        following: (user.following || []).length
+      }
+    };
+
+    return res.json({ success: true, data: responseUser });
+  } catch (error) {
+    console.error('Erreur mise à jour profil:', error);
+    return res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 });
 

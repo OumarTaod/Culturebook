@@ -106,11 +106,22 @@ const Post = ({ post }: PostProps) => {
   };
 
   const renderMedia = () => {
-    const urlRaw = post.mediaUrl || post.audioUrl; // compat: backend actuel renvoie audioUrl
+    // Supporte plusieurs schémas de backend: mediaUrl, imageUrl, videoUrl, audioUrl
+    const anyPost: any = post as any;
+    const urlRaw = post.mediaUrl || post.audioUrl || anyPost.imageUrl || anyPost.videoUrl;
     if (!urlRaw) return null;
-    const url = urlRaw.startsWith('http') ? urlRaw : `${API_URL}${urlRaw}`;
 
-    const type = post.mediaType || detectMediaType(url);
+    const url = typeof urlRaw === 'string' && urlRaw.startsWith('http') ? urlRaw : `${API_URL}${urlRaw}`;
+
+    // Déterminer le type selon la clé prioritaire ou l'extension
+    let type: 'image' | 'video' | 'audio' | null = post.mediaType || null;
+    if (!type) {
+      if (anyPost.imageUrl) type = 'image';
+      else if (anyPost.videoUrl) type = 'video';
+      else if (post.audioUrl) type = 'audio';
+      else type = detectMediaType(url);
+    }
+
     if (type === 'image') {
       return <img src={url} alt="media" className="post-media post-image" />;
     }
@@ -143,7 +154,7 @@ const Post = ({ post }: PostProps) => {
           {liked ? '❤️' : '🤍'} {likesCount} Like
         </button>
         <button className="post-action-button" onClick={handleToggleComments}>
-          💬 Coment
+          💬 Commenter
         </button>
         <button className="post-action-button">🔗 Partager</button>
       </div>

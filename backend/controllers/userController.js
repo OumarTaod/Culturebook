@@ -3,6 +3,37 @@ const Post = require('../models/Post');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 
+// GET /api/users (list with pagination and search)
+exports.listUsers = asyncHandler(async (req, res) => {
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+  const qRaw = (req.query.q || '').toString().trim();
+
+  const filter = {};
+  if (qRaw) {
+    filter.$or = [
+      { name: { $regex: qRaw, $options: 'i' } },
+      { email: { $regex: qRaw, $options: 'i' } },
+    ];
+  }
+
+  const total = await User.countDocuments(filter);
+  const users = await User.find(filter)
+    .select('_id name email avatarUrl bio')
+    .sort({ name: 1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  res.status(200).json({
+    success: true,
+    data: users,
+    page,
+    limit,
+    total,
+    hasMore: page * limit < total,
+  });
+});
+
 // GET /api/users/:id
 exports.getUserById = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id).select('-password');

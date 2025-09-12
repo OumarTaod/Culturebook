@@ -19,6 +19,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [cover, setCover] = useState<File | null>(null);
   const [startingConversation, setStartingConversation] = useState(false);
 
   const resolvedUserId = userId || currentUser?._id || '';
@@ -54,7 +55,6 @@ const Profile = () => {
       } catch (err: any) {
         const msg = err?.response?.data?.message || 'Impossible de charger les informations du profil';
         setError(msg);
-        // console.error('Profil error:', err?.response?.data || err);
       } finally {
         setIsLoading(false);
       }
@@ -73,6 +73,12 @@ const Profile = () => {
     }
   };
 
+  const handleCoverChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCover(e.target.files[0]);
+    }
+  };
+
   const handleProfileUpdate = async () => {
     try {
       const formData = new FormData();
@@ -81,6 +87,9 @@ const Profile = () => {
       }
       if (avatar) {
         formData.append('avatar', avatar);
+      }
+      if (cover) {
+        formData.append('cover', cover);
       }
 
       const response = await api.patch(`/users/${resolvedUserId}`, formData, {
@@ -93,6 +102,7 @@ const Profile = () => {
       setProfileUser(updated);
       setIsEditing(false);
       setAvatar(null);
+      setCover(null);
     } catch (err) {
       setError('Impossible de mettre à jour le profil.');
     }
@@ -146,6 +156,20 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
+      <div className="profile-cover">
+        <img
+          src={profileUser.coverUrl || '/default-cover.jpg'}
+          alt="Image de couverture"
+          className="cover-image"
+        />
+        {isOwnProfile && (
+          <label className="cover-upload">
+            <input type="file" accept="image/*" onChange={handleCoverChange} hidden />
+            📷 Modifier la couverture
+          </label>
+        )}
+      </div>
+
       <div className="profile-header">
         <div className="profile-avatar">
           <img
@@ -153,13 +177,11 @@ const Profile = () => {
             alt={`Avatar de ${profileUser.name}`}
             className="avatar-image"
           />
-          {isEditing && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              className="avatar-input"
-            />
+          {isOwnProfile && (
+            <label className="avatar-overlay">
+              <input type="file" accept="image/*" onChange={handleAvatarChange} hidden />
+              📷
+            </label>
           )}
         </div>
         <div className="profile-info">

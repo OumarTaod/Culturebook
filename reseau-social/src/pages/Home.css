@@ -1,3 +1,41 @@
-/* Styles par défaut pour la page d'accueil */
+/* Facebook-like Home grid */
+.home-grid { display: grid; grid-template-columns: 300px minmax(560px, 1fr) 320px; gap: 18px; width: 100%; max-width: 1320px; margin: 0 auto; padding: 16px; }
+.home-left, .home-center, .home-right { min-width: 0; }
+
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); padding: 14px; }
+.card h3 { margin: 0 0 10px 0; font-size: 1rem; }
+
+.links, .suggestions, .contacts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.suggestion-item, .contact-item { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 32px; height: 32px; border-radius: 999px; background: #e5e7eb; }
+.status-dot { width: 10px; height: 10px; border-radius: 999px; background: #9ca3af; }
+.status-dot.online { background: #22c55e; }
+.name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Center feed width */
+.posts-container { width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+/* Subtle glass effect for sidebars */
+.home-left .card, .home-right .card {
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-color: rgba(229, 231, 235, 0.7);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .home-grid { grid-template-columns: 260px minmax(520px, 1fr) 280px; }
+}
+
+@media (max-width: 1024px) {
+  .home-grid { grid-template-columns: 1fr 320px; }
+  .home-left { display: none; }
+}
+
+@media (max-width: 768px) {
+  .home-grid { grid-template-columns: 1fr; padding: 10px; }
+  .home-right { display: none; }
+}
 
 

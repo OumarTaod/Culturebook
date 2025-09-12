@@ -1,0 +1,7 @@
+/* CreatePost layout */
+.create-post-card { width: 100%; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+.create-post-card form { display: flex; flex-direction: column; gap: 12px; }
+.create-post-card textarea { width: 100%; resize: vertical; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
+.create-post-footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.media-buttons { display: flex; align-items: center; gap: 10px; }
+.media-name { color: #6b7280; font-size: 0.9rem; }
