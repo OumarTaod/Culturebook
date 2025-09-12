@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Post from '../components/Post';
 import CreatePost from '../components/CreatePost';
+import CultureSlider from '../components/CultureSlider';
 import api from '../services/api';
 import Spinner from '../components/Spinner';
 import type { PostType } from '../types';
@@ -137,14 +138,7 @@ const Home = () => {
       </aside>
 
       <section className="home-center">
-        <div className="stories-strip">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="story-card">
-              <div className="story-avatar" />
-              <div className="story-name">Story</div>
-            </div>
-          ))}
-        </div>
+        <CultureSlider />
       <CreatePost onPostSubmit={handleCreatePost} />
       <div className="posts-container">
         {posts.length > 0 ? (

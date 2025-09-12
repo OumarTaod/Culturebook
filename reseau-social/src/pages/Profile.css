@@ -1,203 +1,403 @@
+/*
+===========================================
+           STYLES DU PROFIL UTILISATEUR
+===========================================
+
+Ce fichier contient tous les styles pour la page de profil utilisateur.
+Il gère l'affichage de :
+- L'image de couverture avec possibilité de modification
+- L'avatar avec overlay de modification
+- Les informations utilisateur (nom, bio)
+- Les statistiques (publications, abonnés, abonnements)
+- Les modals pour afficher les listes d'abonnés/abonnements
+- La section des publications de l'utilisateur
+- La responsivité mobile
+
+Structure du layout :
+1. Couverture (profile-cover)
+2. En-tête avec avatar, infos et stats (profile-header)
+3. Modals des abonnements/abonnés (following-modal)
+4. Section des publications (profile-posts)
+
+Le design utilise CSS Grid pour l'en-tête et Flexbox pour les autres sections.
+===========================================
+*/
+
+/* Conteneur principal du profil */
 .profile-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--space-6);
+  max-width: 1100px; /* Largeur maximale pour éviter que le contenu soit trop étalé */
+  margin: 0 auto; /* Centrage horizontal */
+  padding: var(--space-6); /* Espacement interne */
 }
 
+/* En-tête du profil avec layout en grille */
 .profile-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: var(--space-8);
-  align-items: start;
+  display: grid; /* Utilisation de CSS Grid pour la mise en page */
+  grid-template-columns: auto 1fr auto; /* Avatar | Infos (flexible) | Stats */
+  gap: var(--space-8); /* Espacement entre les colonnes */
+  align-items: start; /* Alignement en haut */
   margin-bottom: var(--space-8);
   padding: var(--space-6);
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
+  background: var(--color-surface); /* Couleur de fond */
+  border-radius: var(--radius-lg); /* Coins arrondis */
+  border: 1px solid var(--color-border); /* Bordure subtile */
+  box-shadow: var(--shadow-lg); /* Ombre pour l'effet de profondeur */
 }
 
+/* Conteneur de l'avatar */
 .profile-avatar {
-  position: relative;
+  position: relative; /* Pour positionner l'overlay de modification */
   width: 150px;
   height: 150px;
 }
 
+/* Image avatar */
 .avatar-image {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #fff;
-  box-shadow: var(--shadow-md);
+  border-radius: 50%; /* Forme circulaire */
+  object-fit: cover; /* Recadrage proportionnel */
+  border: 3px solid #fff; /* Bordure blanche */
+  box-shadow: var(--shadow-md); /* Ombre douce */
 }
 
+/* Input de modification d'avatar (style legacy) */
 .avatar-input {
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%); /* Centrage horizontal */
   width: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
   color: white;
   padding: 5px;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Coins arrondis en bas */
 }
 
+/* Section des informations du profil */
 .profile-info {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  flex-direction: column; /* Empilement vertical */
+  gap: var(--space-4); /* Espacement entre les éléments */
 }
 
+/* Nom de l'utilisateur */
 .profile-info h1 {
-  margin: 0;
-  font-size: 28px;
+  margin: 0; /* Suppression des marges par défaut */
+  font-size: 28px; /* Taille de police importante */
   color: var(--color-text);
 }
 
+/* Bio de l'utilisateur */
 .bio {
   margin: 0;
-  color: var(--color-muted);
-  line-height: 1.7;
+  color: var(--color-muted); /* Couleur plus douce */
+  line-height: 1.7; /* Interlignage pour la lisibilité */
 }
 
+/* Champ de saisie de la bio */
 .bio-input {
   width: 100%;
-  min-height: 110px;
+  min-height: 110px; /* Hauteur minimale pour le confort */
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  resize: vertical;
+  resize: vertical; /* Redimensionnement vertical uniquement */
 }
 
+/* Bouton d'édition/action */
 .edit-button {
-  align-self: flex-start;
+  align-self: flex-start; /* Alignement à gauche */
   padding: 10px 16px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); /* Dégradé */
   color: white;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: filter 0.2s, transform .06s ease;
-  font-weight: 800;
+  transition: filter 0.2s, transform .06s ease; /* Animations fluides */
+  font-weight: 800; /* Texte en gras */
 }
 
-.edit-button:hover { filter: brightness(1.05); }
-.edit-button:active { transform: translateY(1px); }
+/* Effets d'interaction du bouton */
+.edit-button:hover { 
+  filter: brightness(1.05); /* Éclaircissement au survol */
+}
+.edit-button:active { 
+  transform: translateY(1px); /* Effet d'enfoncement au clic */
+}
 
+/* Conteneur des statistiques */
 .profile-stats {
-  display: flex;
-  gap: var(--space-4);
+  display: flex; /* Disposition horizontale */
+  gap: var(--space-4); /* Espacement entre les stats */
 }
 
+/* Chaque statistique individuelle */
 .stat {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
+  flex-direction: column; /* Valeur au-dessus du label */
+  align-items: center; /* Centrage */
+  gap: 5px; /* Espacement entre valeur et label */
 }
 
+/* Valeur numérique de la statistique */
 .stat-value {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 800; /* Très gras pour l'importance */
   color: var(--color-text);
 }
 
+/* Label de la statistique */
 .stat-label {
-  font-size: 14px;
-  color: var(--color-muted);
+  font-size: 14px; /* Plus petit que la valeur */
+  color: var(--color-muted); /* Couleur plus douce */
 }
 
+/* Section des publications */
 .profile-posts {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md); /* Cohérence visuelle avec l'en-tête */
 }
 
+/* Titre de la section publications */
 .profile-posts h2 {
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-4); /* Marge uniquement en bas */
   color: var(--color-text);
   font-size: 22px;
 }
 
+/* Message quand aucune publication */
 .no-posts {
   text-align: center;
   color: var(--color-muted);
-  padding: var(--space-8) 0;
+  padding: var(--space-8) 0; /* Espacement vertical généreux */
 }
 
+/* Styles pour les messages d'erreur */
 .error {
   text-align: center;
-  color: #d32f2f;
+  color: #d32f2f; /* Rouge pour les erreurs */
   padding: var(--space-4);
-  background: #fde8e8;
+  background: #fde8e8; /* Fond rouge très clair */
   border-radius: var(--radius-sm);
   margin: var(--space-4) 0;
 }
 
-/* Cover section */
+/* Section de l'image de couverture */
 .profile-cover {
-  position: relative;
+  position: relative; /* Pour positionner le bouton de modification */
   width: 100%;
-  height: 240px;
+  height: 240px; /* Hauteur fixe pour la cohérence */
   border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: #e5e7eb;
+  overflow: hidden; /* Masque le débordement de l'image */
+  background: #e5e7eb; /* Couleur de fond par défaut */
   margin-bottom: var(--space-6);
   border: 1px solid var(--color-border);
 }
+/* Image de couverture */
 .cover-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
+  object-fit: cover; /* Recadrage proportionnel */
+  display: block; /* Supprime l'espace en bas des images */
 }
+/* Bouton de modification de couverture */
 .cover-upload {
   position: absolute;
   right: 16px;
-  bottom: 16px;
-  background: rgba(0,0,0,0.6);
+  bottom: 16px; /* Positionnement en bas à droite */
+  background: rgba(0,0,0,0.6); /* Fond semi-transparent */
   color: #fff;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 700;
 }
-.cover-upload:hover { background: rgba(0,0,0,0.7); }
+/* Effet de survol du bouton couverture */
+.cover-upload:hover { 
+  background: rgba(0,0,0,0.7); /* Assombrissement au survol */
+}
 
-/* Avatar overlay */
-.profile-avatar { position: relative; width: 150px; height: 150px; }
+/* Overlay de modification d'avatar */
+.profile-avatar { 
+  position: relative; 
+  width: 150px; 
+  height: 150px; 
+}
+
 .avatar-overlay {
   position: absolute;
   right: 8px;
-  bottom: 8px;
+  bottom: 8px; /* Positionnement en bas à droite de l'avatar */
   width: 36px;
   height: 36px;
-  border-radius: 999px;
+  border-radius: 999px; /* Forme parfaitement circulaire */
   display: grid;
-  place-items: center;
-  background: rgba(0,0,0,0.65);
+  place-items: center; /* Centrage parfait du contenu */
+  background: rgba(0,0,0,0.65); /* Fond semi-transparent */
   color: #fff;
   cursor: pointer;
   font-size: 16px;
   font-weight: 800;
 }
-.avatar-overlay:hover { background: rgba(0,0,0,0.75); }
+/* Effet de survol de l'overlay avatar */
+.avatar-overlay:hover { 
+  background: rgba(0,0,0,0.75); /* Assombrissement au survol */
+}
 
+/* Modal des abonnements et abonnés */
+.following-modal {
+  position: fixed; /* Positionnement par rapport à la fenêtre */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; /* Couvre tout l'écran */
+  background: rgba(0, 0, 0, 0.5); /* Overlay semi-transparent */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centrage de la modal */
+  z-index: 1000; /* Au-dessus de tout le reste */
+}
+
+/* Contenu de la modal */
+.modal-content {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  width: 90%; /* Responsive */
+  max-width: 500px; /* Largeur maximale */
+  max-height: 80vh; /* Hauteur maximale relative à l'écran */
+  overflow: hidden; /* Masque le débordement */
+  box-shadow: var(--shadow-lg); /* Ombre importante pour la profondeur */
+}
+
+/* En-tête de la modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between; /* Titre à gauche, bouton à droite */
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border); /* Séparation visuelle */
+}
+
+/* Titre de la modal */
+.modal-header h3 {
+  margin: 0; /* Suppression des marges par défaut */
+  color: var(--color-text);
+}
+
+/* Bouton de fermeture de la modal */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--color-muted);
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centrage du symbole × */
+}
+
+/* Effet de survol du bouton fermer */
+.close-btn:hover {
+  color: var(--color-text); /* Assombrissement au survol */
+}
+
+/* Liste scrollable des abonnements/abonnés */
+.following-list {
+  max-height: 60vh; /* Hauteur maximale avec scroll */
+  overflow-y: auto; /* Scroll vertical si nécessaire */
+  padding: var(--space-4);
+}
+
+/* Chaque élément de la liste */
+.following-item {
+  display: flex;
+  align-items: center; /* Alignement vertical */
+  gap: var(--space-3); /* Espacement entre avatar et infos */
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer; /* Indique que c'est cliquable */
+  transition: background-color 0.2s; /* Animation douce */
+}
+
+/* Effet de survol des éléments de liste */
+.following-item:hover {
+  background: var(--color-hover); /* Changement de couleur au survol */
+}
+
+/* Avatar dans la liste */
+.following-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* Forme circulaire */
+  object-fit: cover; /* Recadrage proportionnel */
+}
+
+/* Informations de l'utilisateur dans la liste */
+.following-info {
+  display: flex;
+  flex-direction: column; /* Nom au-dessus de la bio */
+  gap: 2px; /* Espacement minimal */
+}
+
+/* Nom de l'utilisateur dans la liste */
+.following-name {
+  font-weight: 600; /* Semi-gras pour l'importance */
+  color: var(--color-text);
+}
+
+/* Bio de l'utilisateur dans la liste */
+.following-bio {
+  font-size: 14px;
+  color: var(--color-muted);
+  overflow: hidden;
+  text-overflow: ellipsis; /* Points de suspension si trop long */
+  white-space: nowrap; /* Pas de retour à la ligne */
+  max-width: 300px; /* Largeur maximale */
+}
+
+/* Styles responsifs pour mobile */
 @media (max-width: 768px) {
+  /* En-tête en colonne sur mobile */
   .profile-header {
-    grid-template-columns: 1fr;
-    text-align: center;
+    grid-template-columns: 1fr; /* Une seule colonne */
+    text-align: center; /* Centrage du contenu */
   }
 
-  .profile-avatar { margin: 0 auto; }
+  /* Centrage de l'avatar */
+  .profile-avatar { 
+    margin: 0 auto; 
+  }
 
-  .profile-info { align-items: center; }
+  /* Centrage des informations */
+  .profile-info { 
+    align-items: center; 
+  }
 
-  .edit-button { align-self: center; }
+  /* Centrage du bouton d'édition */
+  .edit-button { 
+    align-self: center; 
+  }
 
-  .profile-stats { justify-content: center; }
+  /* Centrage des statistiques */
+  .profile-stats { 
+    justify-content: center; 
+  }
+
+  /* Modal plus large sur mobile */
+  .modal-content {
+    width: 95%; /* Presque toute la largeur */
+    margin: var(--space-4);
+  }
+
+  /* Bio plus courte sur mobile */
+  .following-bio {
+    max-width: 200px;
+  }
 }

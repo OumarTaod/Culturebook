@@ -1,3 +1,41 @@
+/**
+ * ===========================================
+ *        CONTRÔLEUR UTILISATEUR (BACKEND)
+ * ===========================================
+ * 
+ * Ce contrôleur gère toutes les opérations liées aux utilisateurs :
+ * 
+ * GESTION DES PROFILS :
+ * - Récupération des informations utilisateur
+ * - Mise à jour du profil (bio, avatar, couverture)
+ * - Statistiques utilisateur (posts, followers, following)
+ * 
+ * SYSTÈME D'ABONNEMENT :
+ * - Suivre/ne plus suivre un utilisateur
+ * - Récupérer la liste des abonnements (following)
+ * - Récupérer la liste des abonnés (followers)
+ * 
+ * GESTION DES PUBLICATIONS :
+ * - Récupération des posts d'un utilisateur spécifique
+ * - Filtrage automatique par auteur
+ * 
+ * RECHERCHE ET SUGGESTIONS :
+ * - Liste paginée des utilisateurs avec recherche
+ * - Suggestions d'utilisateurs à suivre
+ * 
+ * ENDPOINTS DISPONIBLES :
+ * GET    /api/users              - Liste des utilisateurs
+ * GET    /api/users/:id          - Profil utilisateur
+ * GET    /api/users/:id/posts    - Publications d'un utilisateur
+ * GET    /api/users/:id/following - Abonnements d'un utilisateur
+ * GET    /api/users/:id/followers - Abonnés d'un utilisateur
+ * PATCH  /api/users/:id          - Mise à jour profil
+ * POST   /api/users/:id/follow   - Suivre un utilisateur
+ * DELETE /api/users/:id/follow   - Ne plus suivre
+ * 
+ * ===========================================
+ */
+
 const User = require('../models/User');
 const Post = require('../models/Post');
 const asyncHandler = require('../utils/asyncHandler');
@@ -58,11 +96,13 @@ exports.getUserById = asyncHandler(async (req, res, next) => {
   });
 });
 
-// GET /api/users/:id/posts
+// GET /api/users/:id/posts - Récupère les publications d'un utilisateur spécifique
 exports.getUserPosts = asyncHandler(async (req, res, next) => {
-  const posts = await Post.find({ author: req.params.id })
-    .populate('author', 'name avatarUrl')
-    .sort({ createdAt: -1 });
+  // FILTRAGE AUTOMATIQUE : Seules les publications de cet utilisateur sont récupérées
+  // Ceci garantit que chaque profil n'affiche que ses propres publications
+  const posts = await Post.find({ author: req.params.id }) // Filtre par auteur
+    .populate('author', 'name avatarUrl') // Informations de l'auteur
+    .sort({ createdAt: -1 }); // Tri par date décroissante (plus récent en premier)
 
   res.status(200).json({ success: true, data: posts });
 });
@@ -147,3 +187,56 @@ exports.unfollowUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true });
 });
+
+// GET /api/users/:id/following - Récupère la liste des abonnements d'un utilisateur
+exports.getUserFollowing = asyncHandler(async (req, res, next) => {
+  // Recherche de l'utilisateur avec population des abonnements
+  // populate() permet de récupérer les détails complets des utilisateurs suivis
+  const user = await User.findById(req.params.id)
+    .populate('following', '_id name avatarUrl bio') // Sélection des champs nécessaires
+    .select('following'); // Ne récupère que le champ following
+  
+  // Vérification de l'existence de l'utilisateur
+  if (!user) return next(new ErrorResponse('Utilisateur non trouvé', 404));
+  
+  // Retour de la liste des abonnements
+  res.status(200).json({ success: true, data: user.following });
+});
+
+// GET /api/users/:id/followers - Récupère la liste des abonnés d'un utilisateur
+exports.getUserFollowers = asyncHandler(async (req, res, next) => {
+  // Recherche de l'utilisateur avec population des abonnés
+  // Même logique que pour les abonnements mais pour les followers
+  const user = await User.findById(req.params.id)
+    .populate('followers', '_id name avatarUrl bio') // Détails des abonnés
+    .select('followers'); // Ne récupère que le champ followers
+  
+  // Vérification de l'existence de l'utilisateur
+  if (!user) return next(new ErrorResponse('Utilisateur non trouvé', 404));
+  
+  // Retour de la liste des abonnés
+  res.status(200).json({ success: true, data: user.followers });
+});
+
+/**
+ * ===========================================
+ *                NOTES TECHNIQUES
+ * ===========================================
+ * 
+ * OPTIMISATIONS MONGODB :
+ * - Utilisation de populate() pour éviter les requêtes multiples
+ * - Sélection spécifique des champs pour réduire la bande passante
+ * - Index sur les champs followers/following pour les performances
+ * 
+ * SÉCURITÉ :
+ * - Validation des paramètres d'entrée
+ * - Gestion des erreurs avec messages appropriés
+ * - Authentification requise pour certaines opérations
+ * 
+ * GESTION DES ERREURS :
+ * - asyncHandler pour la gestion automatique des erreurs async
+ * - ErrorResponse pour des messages d'erreur standardisés
+ * - Codes de statut HTTP appropriés
+ * 
+ * ===========================================
+ */

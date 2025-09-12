@@ -14,6 +14,7 @@ interface Message {
     name: string;
   };
   createdAt: string;
+  isOwnMessage?: boolean; // Ajouté pour identifier les messages de l'utilisateur actuel
 }
 
 interface Conversation {
@@ -37,9 +38,14 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState('');
   const [error, setError] = useState('');
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const messageEndRef = useRef<HTMLDivElement>(null);
   const selectedConversationRef = useRef<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const currentUserIdRef = useRef<string | null>(null);
+  
   selectedConversationRef.current = selectedConversation;
+  currentUserIdRef.current = user?._id || null;
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -54,12 +60,16 @@ const Messages = () => {
   const fetchMessages = useCallback(async (conversationId: string) => {
     try {
       const response = await api.get(`/messages/conversations/${conversationId}`);
-      setMessages(response.data.data);
+      const messagesWithUserInfo = response.data.data.map((message: Message) => ({
+        ...message,
+        isOwnMessage: message.sender._id === (user?._id || localStorage.getItem('userId'))
+      }));
+      setMessages(messagesWithUserInfo);
     } catch (err) {
       setError('Erreur lors du chargement des messages');
       console.error(err);
     }
-  }, []);
+  }, [user?._id]);
 
   useEffect(() => {
     fetchConversations();
@@ -77,9 +87,22 @@ const Messages = () => {
         return [conv, ...copy];
       });
 
-      // Si on regarde cette conversation, rafraîchir
+      // Si on regarde cette conversation, ajouter le message directement
       if (selectedConversationRef.current === message.conversation) {
-        await fetchMessages(message.conversation);
+        setMessages(prev => {
+          // Éviter les doublons - remplacer le message temporaire s'il existe
+          const currentUserId = user?._id || localStorage.getItem('userId');
+          const withoutTemp = prev.filter(m => !m._id.startsWith('temp-') || m.sender._id !== message.sender._id);
+          // Vérifier si le message n'existe pas déjà
+          const exists = withoutTemp.some(m => m._id === message._id);
+          if (exists) return prev;
+          // Ajouter la propriété isOwnMessage au nouveau message
+          const messageWithUserInfo = {
+            ...message,
+            isOwnMessage: message.sender._id === currentUserId
+          };
+          return [...withoutTemp, messageWithUserInfo];
+        });
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
     });
@@ -91,7 +114,7 @@ const Messages = () => {
     return () => {
       unsubscribe();
       onlineUsersUnsubscribe();
-      socketService.disconnect();
+      // Ne pas déconnecter le socket complètement, juste nettoyer les handlers
     };
   }, [fetchConversations, fetchMessages]);
 
@@ -123,10 +146,30 @@ const Messages = () => {
     const receiverId = other?._id;
     if (!receiverId) return;
 
+    const messageContent = newMessage.trim();
+    
+    // Créer un message temporaire pour l'affichage immédiat
+    const tempMessage: Message = {
+      _id: `temp-${Date.now()}`,
+      conversation: selectedConversation,
+      content: messageContent,
+      sender: {
+        _id: user!._id,
+        name: user!.name
+      },
+      createdAt: new Date().toISOString(),
+      isOwnMessage: true // Marquer explicitement comme message envoyé
+    };
+
+    // Ajouter immédiatement le message à l'affichage
+    setMessages(prev => [...prev, tempMessage]);
+    setNewMessage('');
+
     try {
-      socketService.sendMessage(receiverId, newMessage.trim());
-      setNewMessage('');
+      socketService.sendMessage(receiverId, messageContent);
     } catch (err) {
+      // En cas d'erreur, retirer le message temporaire
+      setMessages(prev => prev.filter(m => m._id !== tempMessage._id));
       setError("Erreur lors de l'envoi du message");
       console.error(err);
     }
@@ -144,31 +187,58 @@ const Messages = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    if (isToday) {
+      return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
   };
+
+  const filteredConversations = conversations.filter(conv => 
+    getOtherParticipant(conv).toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="messages-container">
       <div className="conversations-list">
-        <h2>Conversations</h2>
-        {conversations.map((conversation) => (
+        <div className="conversations-header">
+          <h2>Messages</h2>
+          <button className="new-chat-btn">✏️</button>
+        </div>
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Rechercher une conversation..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        {filteredConversations.map((conversation) => (
           <div
             key={conversation._id}
             className={`conversation-item ${selectedConversation === conversation._id ? 'selected' : ''}`}
             onClick={() => setSelectedConversation(conversation._id)}
           >
-            <div className="conversation-header">
-              <div className="conversation-name">
-                {getOtherParticipant(conversation)}
-                {isUserOnline(conversation) && <span className="online-indicator" />}
+            <div className="conversation-avatar">
+              {getOtherParticipant(conversation)[0]?.toUpperCase()}
+              {isUserOnline(conversation) && <span className="online-dot" />}
+            </div>
+            <div className="conversation-info">
+              <div className="conversation-header">
+                <div className="conversation-name">
+                  {getOtherParticipant(conversation)}
+                </div>
+                {conversation.lastMessage && (
+                  <div className="conversation-time">{formatDate(conversation.lastMessage.createdAt)}</div>
+                )}
               </div>
               {conversation.lastMessage && (
-                <div className="conversation-time">{formatDate(conversation.lastMessage.createdAt)}</div>
+                <div className="conversation-last-message">{conversation.lastMessage.content}</div>
               )}
             </div>
-            {conversation.lastMessage && (
-              <div className="conversation-last-message">{conversation.lastMessage.content}</div>
-            )}
           </div>
         ))}
       </div>
@@ -176,26 +246,57 @@ const Messages = () => {
       <div className="messages-content">
         {selectedConversation ? (
           <>
-            <div className="messages-list">
-              {messages.map((message) => (
-                <div key={message._id} className={`message ${message.sender._id === user?._id ? 'sent' : 'received'}`}>
-                  <div className="message-content">{message.content}</div>
-                  <div className="message-time">{formatDate(message.createdAt)}</div>
+            <div className="chat-header">
+              <div className="chat-user-info">
+                <div className="chat-avatar">
+                  {conversations.find(c => c._id === selectedConversation) && 
+                    getOtherParticipant(conversations.find(c => c._id === selectedConversation)!)[0]?.toUpperCase()}
                 </div>
-              ))}
+                <div className="chat-details">
+                  <div className="chat-name">
+                    {conversations.find(c => c._id === selectedConversation) && 
+                      getOtherParticipant(conversations.find(c => c._id === selectedConversation)!)}
+                  </div>
+                  <div className="chat-status">
+                    {conversations.find(c => c._id === selectedConversation) && 
+                      isUserOnline(conversations.find(c => c._id === selectedConversation)!) ? 'En ligne' : 'Hors ligne'}
+                  </div>
+                </div>
+              </div>
+              <div className="chat-actions">
+                <button className="chat-action-btn">📞</button>
+                <button className="chat-action-btn">📹</button>
+                <button className="chat-action-btn">⋮</button>
+              </div>
+            </div>
+            <div className="messages-list">
+              {messages.map((message) => {
+                // Utiliser isOwnMessage si disponible, sinon comparer les IDs
+                const currentUserId = user?._id || localStorage.getItem('userId');
+                const isSent = message.isOwnMessage !== undefined ? message.isOwnMessage : message.sender._id === currentUserId;
+                return (
+                  <div key={message._id} className={`message ${isSent ? 'sent' : 'received'}`}>
+                    <div className="message-content">{message.content}</div>
+                    <div className="message-time">{formatDate(message.createdAt)}</div>
+                  </div>
+                );
+              })}
               <div ref={messageEndRef} />
             </div>
 
             <form onSubmit={handleSendMessage} className="message-input-container">
+              <button type="button" className="attachment-btn">📎</button>
               <input
+                ref={inputRef}
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Écrivez votre message..."
+                placeholder="Tapez un message..."
                 className="message-input"
               />
+              <button type="button" className="emoji-btn">😊</button>
               <button type="submit" className="send-button" disabled={!newMessage.trim()}>
-                Envoyer
+                {newMessage.trim() ? '➤' : '🎤'}
               </button>
             </form>
           </>

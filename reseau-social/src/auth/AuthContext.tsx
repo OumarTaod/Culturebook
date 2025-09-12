@@ -39,11 +39,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           const response = await api.get('/auth/profile');
           setUser(response.data);
+          localStorage.setItem('userId', response.data._id);
           setIsAuthenticated(true);
           setIsLoading(false);
         } catch (error) {
           console.error("Session invalide, déconnexion");
           localStorage.removeItem('token');
+          localStorage.removeItem('userId');
           setIsAuthenticated(false);
           setUser(null);
           setRedirectTo('/login');
@@ -66,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (authData: AuthResponse) => {
     localStorage.setItem('token', authData.token);
+    localStorage.setItem('userId', authData.user._id);
     setUser(authData.user);
     setIsAuthenticated(true);
     setRedirectTo('/');
@@ -73,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     setUser(null);
     setIsAuthenticated(false);
     setRedirectTo('/login');
