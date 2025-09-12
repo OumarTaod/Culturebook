@@ -47,7 +47,9 @@ const Post = ({ post }: PostProps) => {
 
   const authorId = post.author?._id || 'anon';
   const authorName = post.author?.name || 'Anonyme';
-  const authorAvatar = post.author?.avatarUrl || `https://i.pravatar.cc/150?u=${authorId}`;
+  const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/?api\/?$/, '');
+  const absoluteUrl = (u?: string) => (u && !u.startsWith('http') ? `${API_ORIGIN}${u}` : (u || ''));
+  const authorAvatar = absoluteUrl(post.author?.avatarUrl) || `https://i.pravatar.cc/150?u=${authorId}`;
 
   const likeIds = useMemo(() => (post.likes || []).map((id: any) => id?.toString()).filter(Boolean), [post.likes]);
   const initialLiked = useMemo(() => (user ? likeIds.includes(user._id) : false), [user, likeIds]);

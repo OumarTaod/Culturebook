@@ -20,6 +20,7 @@ interface AuthContextType {
   login: (authData: AuthResponse) => void;
   logout: () => void;
   isLoading: boolean;
+  updateUser: (updated: Partial<User> | User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,12 +78,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRedirectTo('/login');
   };
 
+  const updateUser = (updated: Partial<User> | User) => {
+    setUser((prev) => {
+      if (!prev) return updated as User;
+      return { ...prev, ...updated } as User;
+    });
+  };
+
   const value = {
     isAuthenticated,
     user,
     login,
     logout,
-    isLoading
+    isLoading,
+    updateUser
   };
 
   if (isLoading) {

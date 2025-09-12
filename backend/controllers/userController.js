@@ -69,13 +69,28 @@ exports.getUserPosts = asyncHandler(async (req, res, next) => {
 
 // PATCH /api/users/:id
 exports.updateUser = asyncHandler(async (req, res, next) => {
+  // Debug logs to trace profile update issues
+  if (process.env.NODE_ENV !== 'test') {
+    console.log('PATCH /api/users/:id called', {
+      paramId: req.params.id,
+      authedUserId: req.user?._id?.toString?.(),
+      hasFiles: Boolean(req.files),
+      fileKeys: req.files ? Object.keys(req.files) : [],
+      bodyKeys: Object.keys(req.body || {})
+    });
+  }
   if (req.user._id.toString() !== req.params.id.toString()) {
     return next(new ErrorResponse('Accès non autorisé', 403));
   }
 
   const updates = {};
   if (typeof req.body.bio === 'string') updates.bio = req.body.bio;
-  if (req.file) updates.avatarUrl = `/uploads/${req.file.filename}`;
+  if (req.files) {
+    const avatarFile = Array.isArray(req.files.avatar) ? req.files.avatar[0] : undefined;
+    const coverFile = Array.isArray(req.files.cover) ? req.files.cover[0] : undefined;
+    if (avatarFile) updates.avatarUrl = `/uploads/${avatarFile.filename}`;
+    if (coverFile) updates.coverUrl = `/uploads/${coverFile.filename}`;
+  }
 
   const user = await User.findByIdAndUpdate(req.params.id, updates, {
     new: true,

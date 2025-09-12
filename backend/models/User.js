@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    coverUrl: {
+        type: String,
+        default: ''
+    },
     bio: {
         type: String,
         default: ''

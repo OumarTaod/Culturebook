@@ -12,6 +12,6 @@ router.delete('/:id/follow', protect, unfollowUser);
 
 router.get('/:id', getUserById);
 router.get('/:id/posts', getUserPosts);
-router.patch('/:id', protect, upload.single('avatar'), updateUser);
+router.patch('/:id', protect, upload.fields([{ name: 'avatar' }, { name: 'cover' }]), updateUser);
 
 module.exports = router;

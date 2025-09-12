@@ -11,7 +11,14 @@ import './Profile.css';
 const Profile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api') as string;
+  const API_ORIGIN = API_BASE.replace(/\/?api\/?$/, '');
+  const toAbsolute = (url?: string | null) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${API_ORIGIN}${url}`;
+  };
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +84,9 @@ const Profile = () => {
       });
       const updated = response.data?.data || response.data;
       setProfileUser(updated);
+      if (isOwnProfile && updated) {
+        updateUser(updated);
+      }
     } catch (err) {
       setError('Impossible de mettre à jour le profil.');
     } finally {
@@ -142,6 +152,9 @@ const Profile = () => {
 
       const updated = response.data?.data || response.data;
       setProfileUser(updated);
+      if (isOwnProfile && updated) {
+        updateUser(updated);
+      }
       setIsEditing(false);
       setAvatar(null);
       setCover(null);
@@ -200,7 +213,7 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-cover">
         <img
-          src={profileUser.coverUrl || '/default-cover.jpg'}
+          src={toAbsolute(profileUser.coverUrl) || '/default-cover.jpg'}
           alt="Image de couverture"
           className="cover-image"
         />
@@ -215,7 +228,7 @@ const Profile = () => {
       <div className="profile-header">
         <div className="profile-avatar">
           <img
-            src={profileUser.avatarUrl || '/default-avatar.png'}
+            src={toAbsolute(profileUser.avatarUrl) || '/default-avatar.png'}
             alt={`Avatar de ${profileUser.name}`}
             className="avatar-image"
           />
