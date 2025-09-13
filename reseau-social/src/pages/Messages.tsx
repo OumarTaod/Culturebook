@@ -7,14 +7,13 @@ import './Messages.css';
 
 interface Message {
   _id: string;
-  conversation: string; // conversation id from backend
+  conversation: string;
   content: string;
   sender: {
     _id: string;
     name: string;
   };
   createdAt: string;
-  isOwnMessage?: boolean; // Ajouté pour identifier les messages de l'utilisateur actuel
 }
 
 interface Conversation {
@@ -60,16 +59,12 @@ const Messages = () => {
   const fetchMessages = useCallback(async (conversationId: string) => {
     try {
       const response = await api.get(`/messages/conversations/${conversationId}`);
-      const messagesWithUserInfo = response.data.data.map((message: Message) => ({
-        ...message,
-        isOwnMessage: message.sender._id === (user?._id || localStorage.getItem('userId'))
-      }));
-      setMessages(messagesWithUserInfo);
+      setMessages(response.data.data);
     } catch (err) {
       setError('Erreur lors du chargement des messages');
       console.error(err);
     }
-  }, [user?._id]);
+  }, []);
 
   useEffect(() => {
     fetchConversations();
@@ -90,18 +85,11 @@ const Messages = () => {
       // Si on regarde cette conversation, ajouter le message directement
       if (selectedConversationRef.current === message.conversation) {
         setMessages(prev => {
-          // Éviter les doublons - remplacer le message temporaire s'il existe
-          const currentUserId = user?._id || localStorage.getItem('userId');
-          const withoutTemp = prev.filter(m => !m._id.startsWith('temp-') || m.sender._id !== message.sender._id);
-          // Vérifier si le message n'existe pas déjà
+          // Supprimer les messages temporaires et ajouter le nouveau
+          const withoutTemp = prev.filter(m => !m._id.startsWith('temp-'));
           const exists = withoutTemp.some(m => m._id === message._id);
           if (exists) return prev;
-          // Ajouter la propriété isOwnMessage au nouveau message
-          const messageWithUserInfo = {
-            ...message,
-            isOwnMessage: message.sender._id === currentUserId
-          };
-          return [...withoutTemp, messageWithUserInfo];
+          return [...withoutTemp, message];
         });
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
@@ -157,8 +145,7 @@ const Messages = () => {
         _id: user!._id,
         name: user!.name
       },
-      createdAt: new Date().toISOString(),
-      isOwnMessage: true // Marquer explicitement comme message envoyé
+      createdAt: new Date().toISOString()
     };
 
     // Ajouter immédiatement le message à l'affichage
@@ -271,9 +258,9 @@ const Messages = () => {
             </div>
             <div className="messages-list">
               {messages.map((message) => {
-                // Utiliser isOwnMessage si disponible, sinon comparer les IDs
-                const currentUserId = user?._id || localStorage.getItem('userId');
-                const isSent = message.isOwnMessage !== undefined ? message.isOwnMessage : message.sender._id === currentUserId;
+                // Logique simplifiée : si c'est l'utilisateur actuel, c'est envoyé
+                const isSent = message.sender._id === user?._id;
+                
                 return (
                   <div key={message._id} className={`message ${isSent ? 'sent' : 'received'}`}>
                     <div className="message-content">{message.content}</div>

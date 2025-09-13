@@ -86,6 +86,7 @@ exports.getUserById = asyncHandler(async (req, res, next) => {
       name: user.name,
       email: user.email,
       avatarUrl: user.avatarUrl || '',
+      coverUrl: user.coverUrl || '',
       bio: user.bio || '',
       stats: {
         posts: postsCount,

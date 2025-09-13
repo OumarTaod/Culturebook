@@ -1,7 +1,120 @@
 /* CreatePost layout */
-.create-post-card { width: 100%; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-.create-post-card form { display: flex; flex-direction: column; gap: 12px; }
-.create-post-card textarea { width: 100%; resize: vertical; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
-.create-post-footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-.media-buttons { display: flex; align-items: center; gap: 10px; }
-.media-name { color: #6b7280; font-size: 0.9rem; }
+.create-post-card { 
+  width: 100%; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 12px; 
+  padding: 16px; 
+  background: #fff; 
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06); 
+}
+
+.create-post-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.create-post-card form { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+}
+
+.create-post-card textarea { 
+  width: 100%; 
+  resize: vertical; 
+  padding: 12px; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px;
+  font-size: 14px;
+  min-height: 80px;
+}
+
+.create-post-footer { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+  align-items: center; 
+  justify-content: space-between; 
+}
+
+.media-buttons { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  flex-wrap: wrap;
+}
+
+.media-name { 
+  color: #6b7280; 
+  font-size: 0.9rem;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submit-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .create-post-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  .create-post-card h3 {
+    font-size: 16px;
+  }
+  
+  .create-post-card textarea {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .create-post-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .media-buttons {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-post-card {
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .create-post-card h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .create-post-card textarea {
+    padding: 8px;
+    font-size: 13px;
+    min-height: 70px;
+  }
+  
+  .create-post-footer {
+    gap: 6px;
+  }
+  
+  .media-name {
+    max-width: 120px;
+    font-size: 0.8rem;
+  }
+  
+  button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}

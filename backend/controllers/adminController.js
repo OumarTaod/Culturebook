@@ -2,6 +2,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 const User = require('../models/User');
 const Post = require('../models/Post');
+const Message = require('../models/Message');
 
 // GET /api/admin/users
 exports.listUsers = asyncHandler(async (req, res, next) => {
@@ -55,6 +56,53 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
   await User.findByIdAndDelete(target._id);
 
   res.status(200).json({ success: true, message: 'Utilisateur supprimé' });
+});
+
+// GET /api/admin/stats
+exports.getStats = asyncHandler(async (req, res, next) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const [totalUsers, totalPosts, totalMessages, newUsersToday] = await Promise.all([
+    User.countDocuments(),
+    Post.countDocuments(),
+    Message.countDocuments(),
+    User.countDocuments({ createdAt: { $gte: today } })
+  ]);
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      totalUsers,
+      totalPosts,
+      totalMessages,
+      newUsersToday
+    }
+  });
+});
+
+// GET /api/admin/posts
+exports.listPosts = asyncHandler(async (req, res, next) => {
+  const posts = await Post.find()
+    .populate('author', 'name')
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .select('textContent type language region author likes comments createdAt');
+  
+  // Mapper les posts pour avoir un format cohérent
+  const mappedPosts = posts.map(post => ({
+    _id: post._id,
+    content: post.textContent,
+    type: post.type,
+    language: post.language,
+    region: post.region,
+    author: post.author,
+    likes: post.likes,
+    comments: post.comments,
+    createdAt: post.createdAt
+  }));
+  
+  res.status(200).json({ success: true, data: mappedPosts });
 });
 
 // DELETE /api/admin/posts/:id

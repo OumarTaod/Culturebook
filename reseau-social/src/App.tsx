@@ -1,12 +1,14 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './auth/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Follow from './pages/Follow';
+import Admin from './pages/Admin';
 import './App.css';
 
 function App() {
@@ -20,6 +22,11 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="messages" element={<Messages />} />
           <Route path="follow" element={<Follow />} />
+          <Route path="admin" element={
+            <AdminRoute>
+              <Admin />
+            </AdminRoute>
+          } />
         </Route>
       </Route>
 

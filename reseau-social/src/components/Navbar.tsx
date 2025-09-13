@@ -140,17 +140,23 @@ const Navbar = () => {
           <ul className="nav-center-list">
             <li>
               <NavLink to="/" className={getNavLinkClass} aria-label="Accueil">
-                🏠
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
               </NavLink>
             </li>
             <li>
               <NavLink to="/follow" className={getNavLinkClass} aria-label="Suivre">
-                👥
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.37-2 1l-3 4v2h2l2.54-3.4L16.5 18H20zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm1.5 2h-2C3.67 8 2.4 9.24 2.05 10.8L2 22h2v-7h2v7h2v-7.5c0-.28-.22-.5-.5-.5z"/>
+                </svg>
               </NavLink>
             </li>
             <li>
               <NavLink to="/notifications" className={getNavLinkClass} aria-label="Notifications" style={{ position: 'relative' }}>
-                🔔
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
                 {unreadCount > 0 && (
                   <span className="nav-badge" aria-label={`${unreadCount} notifications non lues`}>{unreadCount}</span>
                 )}
@@ -158,7 +164,9 @@ const Navbar = () => {
             </li>
             <li>
               <NavLink to="/messages" className={getNavLinkClass} aria-label="Messages">
-                ✉️
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                </svg>
               </NavLink>
             </li>
           </ul>
@@ -171,32 +179,56 @@ const Navbar = () => {
             <div className="nav-avatar" aria-hidden="true">{user?.name?.[0] || 'U'}</div>
             <span className="nav-username">{user?.name}</span>
           </Link>
-          <button className="nav-action" aria-label="Créer">＋</button>
-          <button className="nav-action" aria-label="Menu">⋯</button>
+          <button className="nav-action" aria-label="Créer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+          </button>
           <div className="user-menu-container" ref={menuRef}>
             <button 
               onClick={() => setShowUserMenu(!showUserMenu)} 
               className="nav-action" 
               aria-label="Menu utilisateur"
             >
-              ⋯
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
             </button>
             {showUserMenu && (
               <div className="user-menu">
+                {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                  <Link to="/admin" onClick={() => setShowUserMenu(false)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                    </svg>
+                    Administration
+                  </Link>
+                )}
                 <button onClick={() => { setShowPasswordModal(true); setShowUserMenu(false); }}>
-                  🔑 Changer mot de passe
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                  </svg>
+                  Changer mot de passe
                 </button>
                 <button onClick={confirmLogout}>
-                  🚪 Déconnexion
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                  </svg>
+                  Déconnexion
                 </button>
                 <button onClick={confirmDeleteAccount} className="delete-btn">
-                  🗑️ Supprimer le compte
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                  Supprimer le compte
                 </button>
               </div>
             )}
           </div>
         </div>
       )}
+
+
 
       {toast && (
         <div className="toast-notice" role="status" aria-live="polite">{toast}</div>

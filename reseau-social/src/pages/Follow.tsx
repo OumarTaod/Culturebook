@@ -15,6 +15,7 @@ const Follow = () => {
         setLoading(true);
         const response = await api.get('/users/suggestions');
         const data = response.data?.data || response.data;
+        console.log('Suggestions reçues:', data);
         setSuggestions(data || []);
       } catch (err) {
         console.error('Erreur lors du chargement des suggestions:', err);
@@ -50,11 +51,17 @@ const Follow = () => {
           {suggestions.map((user) => (
             <div key={user._id} className="suggestion-card">
               <div className="suggestion-avatar">
-                <img
-                  src={user.avatarUrl || '/default-avatar.png'}
-                  alt={`Avatar de ${user.name}`}
-                  className="avatar-image"
-                />
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl.startsWith('http') ? user.avatarUrl : `http://localhost:5000${user.avatarUrl}`}
+                    alt={`Avatar de ${user.name}`}
+                    className="avatar-image"
+                  />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {user.name?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                )}
               </div>
               <div className="suggestion-info">
                 <h3>{user.name}</h3>

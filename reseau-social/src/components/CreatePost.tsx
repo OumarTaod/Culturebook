@@ -42,8 +42,8 @@ const CreatePost = ({ onPostSubmit }: CreatePostProps) => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError("Le fichier est trop volumineux. Taille maximale : 5MB");
+      if (file.size > 10 * 1024 * 1024) { // 5MB limit
+        setError("Le fichier est trop volumineux. Taille maximale : 10MB");
         return;
       }
       setMediaFile(file);

@@ -131,7 +131,11 @@ const Profile = () => {
 
         // Extraction des données utilisateur (gestion de différents formats de réponse)
         const userData = userResponse.data?.data || userResponse.data;
-        console.log('👤 Données utilisateur extraites:', userData);
+        console.log('👤 Données utilisateur extraites:', { 
+          name: userData?.name, 
+          coverUrl: userData?.coverUrl, 
+          avatarUrl: userData?.avatarUrl 
+        });
         
         if (!userData) {
           throw new Error('Aucune donnée utilisateur reçue');
@@ -178,10 +182,12 @@ const Profile = () => {
       
       // Mise à jour des données locales
       const updated = response.data?.data || response.data;
+      console.log('📸 Données reçues du serveur:', updated);
       setProfileUser(updated);
       
       // Si c'est son propre profil, mettre à jour le contexte global
       if (isOwnProfile && updated) {
+        console.log('🔄 Mise à jour du contexte avec:', { coverUrl: updated.coverUrl, avatarUrl: updated.avatarUrl });
         updateUser(updated);
       }
     } catch (err) {
@@ -197,13 +203,7 @@ const Profile = () => {
       const file = e.target.files[0];
       setAvatar(file);
       
-      // Aperçu optimiste : affichage immédiat avant upload
-      if (profileUser) {
-        const url = URL.createObjectURL(file); // Création URL temporaire
-        setProfileUser({ ...profileUser, avatarUrl: url });
-      }
-      
-      // Upload automatique du fichier
+      // Upload automatique du fichier sans aperçu optimiste
       const fd = new FormData();
       fd.append('avatar', file);
       uploadPartial(fd);
@@ -216,13 +216,7 @@ const Profile = () => {
       const file = e.target.files[0];
       setCover(file);
       
-      // Aperçu optimiste de la nouvelle couverture
-      if (profileUser) {
-        const url = URL.createObjectURL(file);
-        setProfileUser({ ...profileUser, coverUrl: url });
-      }
-      
-      // Upload automatique
+      // Upload automatique sans aperçu optimiste pour éviter les conflits
       const fd = new FormData();
       fd.append('cover', file);
       uploadPartial(fd);

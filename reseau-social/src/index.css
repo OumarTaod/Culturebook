@@ -49,6 +49,7 @@ html { font-size: var(--font-size-base); }
 
 body {
   margin: 0;
+  padding-top: 64px; /* Espace pour la navbar fixe */
   font-family: var(--font-sans);
   color: var(--color-text);
   line-height: var(--line-height-base);
@@ -56,6 +57,48 @@ body {
     radial-gradient(1000px 400px at 10% -20%, rgba(79, 70, 229, 0.06), transparent 60%),
     radial-gradient(1200px 500px at 110% -10%, rgba(6, 182, 212, 0.06), transparent 60%),
     var(--color-bg);
+}
+
+/* Container responsive */
+.container { 
+  width: 100%; 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 0 var(--space-6); 
+}
+
+@media (max-width: 1024px) {
+  .container { padding: 0 var(--space-4); }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 0;
+    padding-bottom: 56px;
+  }
+  
+  .container { padding: 0 var(--space-3); }
+  
+  /* Typography responsive */
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  
+  /* Cards responsive */
+  .card {
+    padding: var(--space-4);
+    border-radius: var(--radius-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 var(--space-2); }
+  
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+  
+  .card { padding: var(--space-3); }
 }
 
 /* Typography */

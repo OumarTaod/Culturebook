@@ -1,0 +1,37 @@
+INSTRUCTIONS POUR AJOUTER DES IMAGES AU SLIDER
+==============================================
+
+1. NOMS DE FICHIERS ATTENDUS :
+   - slide-1.jpg
+   - slide-2.jpg  
+   - slide-3.jpg
+   - slide-4.jpg
+   - slide-5.jpg
+
+2. FORMATS SUPPORTÉS :
+   - JPG, JPEG, PNG, WebP
+
+3. TAILLE RECOMMANDÉE :
+   - Largeur : 1200px
+   - Hauteur : 400px
+   - Ratio : 3:1 (paysage)
+
+4. COMMENT AJOUTER VOS IMAGES :
+   a) Renommez vos images selon le format : slide-1.jpg, slide-2.jpg, etc.
+   b) Copiez-les dans ce dossier (public/slider/)
+   c) Actualisez la page - elles apparaîtront automatiquement !
+
+5. EXEMPLES D'IMAGES À UTILISER :
+   - Photos de culture guinéenne
+   - Paysages du pays
+   - Artisanat traditionnel
+   - Danses et musiques
+   - Architecture locale
+
+6. CONSEILS :
+   - Optimisez vos images (compression)
+   - Évitez les fichiers trop lourds (max 2MB par image)
+   - Utilisez des images de bonne qualité
+   - Respectez les droits d'auteur
+
+Le slider se met à jour automatiquement dès que vous ajoutez de nouvelles images !

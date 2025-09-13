@@ -85,7 +85,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateUser = (updated: Partial<User> | User) => {
     setUser((prev) => {
       if (!prev) return updated as User;
-      return { ...prev, ...updated } as User;
+      const newUser = { ...prev, ...updated } as User;
+      console.log('🔄 AuthContext: Mise à jour utilisateur:', { 
+        old: { coverUrl: prev.coverUrl, avatarUrl: prev.avatarUrl },
+        new: { coverUrl: newUser.coverUrl, avatarUrl: newUser.avatarUrl }
+      });
+      return newUser;
     });
   };
 
