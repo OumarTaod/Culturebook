@@ -1,9 +1,9 @@
- #root {
+#root {
   margin: 0 auto;
-  padding: 2rem 2rem 2rem 2rem;
+  padding: 0 !important;
 }
 
 .main-content {
   padding: 1rem;
-  padding-top: 72px;
-} 
+  padding-top: 80px;
+}

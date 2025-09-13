@@ -38,13 +38,22 @@ const Messages = () => {
   const [error, setError] = useState('');
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const selectedConversationRef = useRef<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const currentUserIdRef = useRef<string | null>(null);
   
   selectedConversationRef.current = selectedConversation;
-  currentUserIdRef.current = user?._id || null;
+  
+  // Stocker l'ID utilisateur de manière persistante
+  useEffect(() => {
+    if (user?._id && !currentUserIdRef.current) {
+      currentUserIdRef.current = user._id;
+    }
+  }, [user?._id]);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -123,6 +132,67 @@ const Messages = () => {
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      console.log('Suppression du message:', messageId);
+      
+      // Vérifier si c'est un message temporaire
+      if (messageId.startsWith('temp-')) {
+        console.log('Suppression d\'un message temporaire');
+        setMessages(prev => prev.filter(m => m._id !== messageId));
+        return;
+      }
+      
+      const response = await api.delete(`/messages/${messageId}`);
+      console.log('Réponse suppression:', response);
+      setMessages(prev => prev.filter(m => m._id !== messageId));
+    } catch (err: any) {
+      console.error('Erreur suppression:', err);
+      
+      // Si erreur 404, supprimer quand même localement (message peut déjà être supprimé)
+      if (err.response?.status === 404) {
+        console.log('Message déjà supprimé ou inexistant, suppression locale');
+        setMessages(prev => prev.filter(m => m._id !== messageId));
+      } else {
+        setError(`Erreur: ${err.response?.data?.message || err.message}`);
+      }
+    }
+  };
+
+  const handleDeleteMultipleMessages = async () => {
+    if (!confirm(`Supprimer ${selectedMessages.length} messages ?`)) return;
+    
+    try {
+      console.log('Suppression multiple:', selectedMessages);
+      
+      // Supprimer un par un pour identifier les erreurs
+      for (const messageId of selectedMessages) {
+        try {
+          await api.delete(`/messages/${messageId}`);
+          console.log('Message supprimé:', messageId);
+        } catch (err: any) {
+          console.error(`Erreur pour le message ${messageId}:`, err);
+          throw err;
+        }
+      }
+      
+      setMessages(prev => prev.filter(m => !selectedMessages.includes(m._id)));
+      setSelectedMessages([]);
+      setIsSelectionMode(false);
+    } catch (err: any) {
+      console.error('Erreur suppression multiple:', err);
+      setError(`Erreur: ${err.response?.data?.message || err.message}`);
+    }
+  };
+
+  const toggleMessageSelection = (messageId: string) => {
+    setSelectedMessages(prev => 
+      prev.includes(messageId) 
+        ? prev.filter(id => id !== messageId)
+        : [...prev, messageId]
+    );
+  };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,17 +326,167 @@ const Messages = () => {
                 <button className="chat-action-btn">⋮</button>
               </div>
             </div>
+            {isSelectionMode && (
+              <div style={{
+                padding: '12px 20px',
+                background: '#f8fafc',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span>{selectedMessages.length} message(s) sélectionné(s)</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleDeleteMultipleMessages}
+                    disabled={selectedMessages.length === 0}
+                    style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Supprimer
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsSelectionMode(false);
+                      setSelectedMessages([]);
+                    }}
+                    style={{
+                      background: '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="messages-list">
               {messages.map((message) => {
-                // Logique simplifiée : si c'est l'utilisateur actuel, c'est envoyé
-                const isSent = message.sender._id === user?._id;
+                // Debug complet pour identifier le problème
+                const currentUserId = currentUserIdRef.current || user?._id;
+                // Vérifier différentes structures possibles pour le sender
+                const senderId = message.sender?._id || message.sender || message.senderId;
+                const isMyMessage = senderId === currentUserId;
                 
-                return (
-                  <div key={message._id} className={`message ${isSent ? 'sent' : 'received'}`}>
-                    <div className="message-content">{message.content}</div>
-                    <div className="message-time">{formatDate(message.createdAt)}</div>
-                  </div>
-                );
+                console.log('DEBUG MESSAGE:', {
+                  messageId: message._id,
+                  senderId: senderId,
+                  senderObject: message.sender,
+                  senderName: message.sender?.name,
+                  currentUserId,
+                  userFromContext: user?._id,
+                  isMyMessage,
+                  content: message.content.substring(0, 20),
+                  fullMessage: message
+                });
+                
+                // Force le positionnement avec des styles inline absolus
+                if (isMyMessage) {
+                  return (
+                    <div 
+                      key={message._id} 
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginBottom: '8px',
+                        width: '100%'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        {isSelectionMode && (
+                          <input
+                            type="checkbox"
+                            checked={selectedMessages.includes(message._id)}
+                            onChange={() => toggleMessageSelection(message._id)}
+                            style={{
+                              marginTop: '12px',
+                              accentColor: '#667eea'
+                            }}
+                          />
+                        )}
+                        <div 
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            if (!isSelectionMode) {
+                              setSelectedMessage(message._id);
+                            }
+                          }}
+                          onClick={() => {
+                            if (isSelectionMode) {
+                              toggleMessageSelection(message._id);
+                            }
+                          }}
+                          style={{
+                            maxWidth: '70%',
+                            padding: '12px 16px',
+                            borderRadius: '18px 18px 6px 18px',
+                            background: selectedMessages.includes(message._id)
+                              ? 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)'
+                              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: 'white',
+                            fontSize: '15px',
+                            wordWrap: 'break-word',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                        {message.content}
+                        <div style={{
+                          fontSize: '11px',
+                          marginTop: '4px',
+                          textAlign: 'right',
+                          opacity: 0.8
+                        }}>
+                          {formatDate(message.createdAt)}
+                        </div>
+                      </div>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div 
+                      key={message._id} 
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-start',
+                        marginBottom: '8px',
+                        width: '100%'
+                      }}
+                    >
+                      <div style={{
+                        maxWidth: '70%',
+                        padding: '12px 16px',
+                        borderRadius: '18px 18px 18px 6px',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        color: '#1e293b',
+                        border: '1px solid #e2e8f0',
+                        fontSize: '15px',
+                        wordWrap: 'break-word'
+                      }}>
+                        {message.content}
+                        <div style={{
+                          fontSize: '11px',
+                          marginTop: '4px',
+                          textAlign: 'left',
+                          color: '#94a3b8'
+                        }}>
+                          {formatDate(message.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
               })}
               <div ref={messageEndRef} />
             </div>
@@ -293,6 +513,77 @@ const Messages = () => {
       </div>
 
       {error && <div className="error-message">{error}</div>}
+      
+      {selectedMessage && (
+        <div 
+          className="message-menu-overlay"
+          onClick={() => setSelectedMessage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div 
+            className="message-menu"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '8px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+              minWidth: '200px'
+            }}
+          >
+            <button
+              onClick={() => {
+                setIsSelectionMode(true);
+                setSelectedMessages([selectedMessage]);
+                setSelectedMessage(null);
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: 'none',
+                background: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontSize: '16px',
+                color: '#667eea',
+                borderRadius: '8px'
+              }}
+            >
+              ☑️ Sélectionner plusieurs
+            </button>
+            <button
+              onClick={() => {
+                handleDeleteMessage(selectedMessage);
+                setSelectedMessage(null);
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: 'none',
+                background: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontSize: '16px',
+                color: '#ef4444',
+                borderRadius: '8px'
+              }}
+            >
+              🗑️ Supprimer le message
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

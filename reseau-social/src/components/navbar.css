@@ -22,6 +22,11 @@
   border-bottom-color: rgba(229, 231, 235, 1);
 }
 
+/* Assurer que le contenu ne passe pas sous la navbar */
+body {
+  padding-top: 64px;
+}
+
 .nav-left { display: flex; align-items: center; gap: 10px; }
 .navbar-brand {
   font-size: 22px;

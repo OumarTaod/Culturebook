@@ -49,7 +49,7 @@ html { font-size: var(--font-size-base); }
 
 body {
   margin: 0;
-  padding-top: 64px; /* Espace pour la navbar fixe */
+  padding-top: 0 !important; /* Pas de padding, géré par les conteneurs */
   font-family: var(--font-sans);
   color: var(--color-text);
   line-height: var(--line-height-base);

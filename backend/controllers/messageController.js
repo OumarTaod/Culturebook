@@ -69,3 +69,25 @@ exports.getOrCreateConversationWithUser = asyncHandler(async (req, res, next) =>
 
     res.status(200).json({ success: true, data: conversation });
 });
+
+/**
+ * @desc    Supprimer un message
+ * @route   DELETE /api/messages/:messageId
+ * @access  Private
+ */
+exports.deleteMessage = asyncHandler(async (req, res, next) => {
+    const message = await Message.findById(req.params.messageId);
+
+    if (!message) {
+        return next(new ErrorResponse('Message non trouvé', 404));
+    }
+
+    // Vérifier que l'utilisateur est l'auteur du message
+    if (message.sender.toString() !== req.user.id.toString()) {
+        return next(new ErrorResponse('Non autorisé à supprimer ce message', 403));
+    }
+
+    await Message.findByIdAndDelete(req.params.messageId);
+
+    res.status(200).json({ success: true, message: 'Message supprimé' });
+});

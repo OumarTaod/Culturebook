@@ -43,7 +43,6 @@ const Home = () => {
 
   useEffect(() => { fetchPosts(1); }, [fetchPosts]);
 
-  // Si l'utilisateur met à jour son avatar (dans le profil), mettre à jour instantanément dans le feed
   useEffect(() => {
     if (!user?.avatarUrl || !user?._id) return;
     setPosts((prev) => prev.map((p) => {
@@ -124,10 +123,26 @@ const Home = () => {
         <div className="card">
           <h3 data-icon="navigation">Navigation</h3>
           <ul className="links">
-            <li>🧑‍🤝‍🧑 Amis</li>
-            <li>👥 Groupes</li>
-            <li>💾 Sauvegardés</li>
-            <li>🛒 Marketplace</li>
+            <li>
+              <CommunityIcon />
+              Communauté
+            </li>
+            <li>
+              <LibraryIcon />
+              Bibliothèque
+            </li>
+            <li>
+              <EventsIcon />
+              Événements
+            </li>
+            <li>
+              <DiscoverIcon />
+              Découvrir
+            </li>
+            <li>
+              <FavoritesIcon />
+              Favoris
+            </li>
           </ul>
         </div>
         <div className="card">
