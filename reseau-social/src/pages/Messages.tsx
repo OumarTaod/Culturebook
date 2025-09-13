@@ -375,7 +375,7 @@ const Messages = () => {
                 // Debug complet pour identifier le problème
                 const currentUserId = currentUserIdRef.current || user?._id;
                 // Vérifier différentes structures possibles pour le sender
-                const senderId = message.sender?._id || message.sender || message.senderId;
+                const senderId = message.sender?._id || message.sender;
                 const isMyMessage = senderId === currentUserId;
                 
                 console.log('DEBUG MESSAGE:', {
@@ -427,6 +427,7 @@ const Messages = () => {
                             }
                           }}
                           style={{
+                            display: 'inline-block',
                             maxWidth: '70%',
                             padding: '12px 16px',
                             borderRadius: '18px 18px 6px 18px',
@@ -437,7 +438,9 @@ const Messages = () => {
                             fontSize: '15px',
                             wordWrap: 'break-word',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                            backdropFilter: 'blur(10px)'
                           }}
                         >
                         {message.content}
@@ -465,6 +468,7 @@ const Messages = () => {
                       }}
                     >
                       <div style={{
+                        display: 'inline-block',
                         maxWidth: '70%',
                         padding: '12px 16px',
                         borderRadius: '18px 18px 18px 6px',
@@ -472,7 +476,9 @@ const Messages = () => {
                         color: '#1e293b',
                         border: '1px solid #e2e8f0',
                         fontSize: '15px',
-                        wordWrap: 'break-word'
+                        wordWrap: 'break-word',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        backdropFilter: 'blur(10px)'
                       }}>
                         {message.content}
                         <div style={{

@@ -171,7 +171,7 @@ exports.followUser = asyncHandler(async (req, res, next) => {
     await target.save();
   }
 
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, isFollowing: true });
 });
 
 // DELETE /api/users/:id/follow
@@ -186,7 +186,7 @@ exports.unfollowUser = asyncHandler(async (req, res, next) => {
   await user.save();
   await target.save();
 
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, isFollowing: false });
 });
 
 // GET /api/users/:id/following - Récupère la liste des abonnements d'un utilisateur

@@ -41,6 +41,11 @@ router.get('/', listUsers);                    // Liste tous les utilisateurs
 router.get('/suggestions', protect, getSuggestions); // Suggestions (auth requise)
 
 // ========== ACTIONS D'ABONNEMENT ==========
+router.get('/:id/is-following', protect, (req, res) => {
+  // Vérifier si l'utilisateur connecté suit l'utilisateur ciblé
+  const isFollowing = req.user.following?.some(id => id.toString() === req.params.id) || false;
+  res.json({ isFollowing });
+});
 router.post('/:id/follow', protect, followUser);    // Suivre un utilisateur
 router.delete('/:id/follow', protect, unfollowUser); // Ne plus suivre
 

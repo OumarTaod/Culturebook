@@ -90,6 +90,10 @@ const Profile = () => {
   const [showFollowers, setShowFollowers] = useState(false); // Affichage modal abonnés
   const [followers, setFollowers] = useState<User[]>([]); // Liste des abonnés
   const [loadingFollowers, setLoadingFollowers] = useState(false); // Chargement abonnés
+  
+  // États pour le suivi
+  const [isFollowing, setIsFollowing] = useState(false); // État de suivi
+  const [followLoading, setFollowLoading] = useState(false); // Chargement action suivi
 
   // Détermination de l'ID utilisateur à afficher (URL ou utilisateur connecté)
   const resolvedUserId = userId || currentUser?._id || '';
@@ -143,6 +147,18 @@ const Profile = () => {
         
         setProfileUser(userData);
         setBio(userData?.bio || ''); // Initialisation de la bio pour l'édition
+        
+        // Vérifier si on suit déjà cet utilisateur
+        if (!isOwnProfile && currentUser?._id) {
+          try {
+            const followResponse = await api.get(`/users/${resolvedUserId}/is-following`);
+            console.log('Réponse suivi:', followResponse.data);
+            setIsFollowing(followResponse.data?.isFollowing || false);
+          } catch (err) {
+            console.log('Erreur vérification suivi:', err);
+            setIsFollowing(false);
+          }
+        }
 
         // Extraction des publications
         const postsData = postsResponse.data?.data || postsResponse.data;
@@ -381,6 +397,43 @@ const Profile = () => {
     }
   };
 
+  // Gestionnaire pour suivre/ne plus suivre un utilisateur
+  const handleFollowToggle = async () => {
+    if (!profileUser || isOwnProfile) return;
+    
+    setFollowLoading(true);
+    try {
+      let response;
+      if (isFollowing) {
+        response = await api.delete(`/users/${profileUser._id}/follow`);
+      } else {
+        response = await api.post(`/users/${profileUser._id}/follow`);
+      }
+      const newFollowState = response.data?.isFollowing ?? !isFollowing;
+      console.log('Nouveau statut de suivi:', newFollowState);
+      setIsFollowing(newFollowState);
+      
+      // Mettre à jour les statistiques localement
+      setProfileUser(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          stats: {
+            ...prev.stats,
+            followers: newFollowState 
+              ? (prev.stats?.followers || 0) + 1
+              : Math.max((prev.stats?.followers || 0) - 1, 0)
+          }
+        };
+      });
+    } catch (err) {
+      console.error('Erreur suivi:', err);
+      setError('Erreur lors de la mise à jour du suivi');
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
   // ===========================================
   //              RENDU DU COMPOSANT
   // ===========================================
@@ -446,10 +499,19 @@ const Profile = () => {
               {isEditing ? 'Enregistrer' : 'Modifier le profil'}
             </button>
           ) : (
-            // Bouton message pour les autres profils
-            <button onClick={handleStartConversation} className="edit-button" disabled={startingConversation}>
-              {startingConversation ? 'Ouverture…' : 'Message'}
-            </button>
+            // Boutons pour les autres profils
+            <div className="profile-actions">
+              <button 
+                onClick={handleFollowToggle} 
+                className={`follow-button ${isFollowing ? 'following' : 'not-following'}`}
+                disabled={followLoading}
+              >
+                {followLoading ? 'Chargement...' : (isFollowing ? 'Se désabonner' : 'Suivre')}
+              </button>
+              <button onClick={handleStartConversation} className="message-button" disabled={startingConversation}>
+                {startingConversation ? 'Ouverture…' : 'Message'}
+              </button>
+            </div>
           )}
         </div>
         {/* Statistiques du profil */}
