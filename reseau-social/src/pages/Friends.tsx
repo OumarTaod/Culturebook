@@ -23,9 +23,20 @@ const Friends = () => {
         api.get('/users/suggestions')
       ]);
       
-      setFollowing(followingRes.data?.data || []);
-      setFollowers(followersRes.data?.data || []);
-      setSuggestions(suggestionsRes.data?.data || []);
+      const followingData = followingRes.data?.data || [];
+      const followersData = followersRes.data?.data || [];
+      const suggestionsData = suggestionsRes.data?.data || [];
+      
+      // Ajouter le statut isFollowing aux suggestions
+      const followingIds = followingData.map(u => u._id);
+      const suggestionsWithStatus = suggestionsData.map(suggestion => ({
+        ...suggestion,
+        isFollowing: followingIds.includes(suggestion._id)
+      }));
+      
+      setFollowing(followingData);
+      setFollowers(followersData);
+      setSuggestions(suggestionsWithStatus);
       setLoading(false);
     } catch (error) {
       console.error('Erreur:', error);
@@ -61,6 +72,24 @@ const Friends = () => {
     }
   };
 
+  const handleUnfollow = async (userId: string) => {
+    try {
+      await api.delete(`/users/${userId}/follow`);
+      setFollowing(prev => prev.filter(u => u._id !== userId));
+      
+      // Mettre à jour les suggestions si l'utilisateur y est présent
+      setSuggestions(prev => 
+        prev.map(user => 
+          user._id === userId 
+            ? { ...user, isFollowing: false }
+            : user
+        )
+      );
+    } catch (error) {
+      console.error('Erreur lors du désabonnement:', error);
+    }
+  };
+
   return (
     <div className="friends-page">
       <div className="friends-header">
@@ -84,7 +113,7 @@ const Friends = () => {
                   </div>
                   <button 
                     className="follow-btn following"
-                    onClick={() => handleFollow(user._id)}
+                    onClick={() => handleUnfollow(user._id)}
                   >
                     Se désabonner
                   </button>

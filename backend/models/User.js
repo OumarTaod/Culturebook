@@ -89,6 +89,12 @@ const UserSchema = new mongoose.Schema({
         ref: 'User'                                      // Référence vers d'autres utilisateurs
     }],
     
+    // ========== PUBLICATIONS SAUVEGARDÉES ==========
+    savedPosts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'                                      // Référence vers les publications
+    }],
+    
     // ========== MÉTADONNÉES ==========
     createdAt: {
         type: Date,
