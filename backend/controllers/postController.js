@@ -18,8 +18,8 @@ exports.getPosts = asyncHandler(async (req, res, next) => {
     const followingIds = req.user.following || [];
     const authorIds = [...followingIds, req.user._id];
 
-    const total = await Post.countDocuments({ author: { $in: authorIds } });
-    const posts = await Post.find({ author: { $in: authorIds } })
+    const total = await Post.countDocuments({ author: { $in: authorIds }, groupId: null });
+    const posts = await Post.find({ author: { $in: authorIds }, groupId: null })
         .populate('author', 'name avatarUrl')
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -49,6 +49,7 @@ exports.creerPost = asyncHandler(async (req, res, next) => {
         language,
         region,
         textContent,
+        groupId: req.body.groupId || null,
     };
 
     if (req.file) {

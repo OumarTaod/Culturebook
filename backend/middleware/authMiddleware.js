@@ -14,6 +14,15 @@ const protect = async (req, res, next) => {
 
             // Ajouter l'utilisateur à la requête
             req.user = await User.findById(decoded.id).select('-password');
+            
+            if (!req.user) {
+                return res.status(401).json({ success: false, error: 'Utilisateur non trouvé' });
+            }
+            
+            // Vérifier si l'utilisateur est banni
+            if (req.user.banned) {
+                return res.status(403).json({ success: false, error: 'Compte banni' });
+            }
 
             next();
         } catch (error) {

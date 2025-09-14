@@ -8,6 +8,12 @@ import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Follow from './pages/Follow';
+import Explore from './pages/Explore';
+import Friends from './pages/Friends';
+import Groups from './pages/Groups';
+import GroupDetail from './pages/GroupDetail';
+import Saved from './pages/Saved';
+import Marketplace from './pages/Marketplace';
 import Admin from './pages/Admin';
 import './App.css';
 
@@ -22,6 +28,12 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="messages" element={<Messages />} />
           <Route path="follow" element={<Follow />} />
+          <Route path="explore" element={<Explore />} />
+          <Route path="friends" element={<Friends />} />
+          <Route path="groups" element={<Groups />} />
+          <Route path="groups/:groupId" element={<GroupDetail />} />
+          <Route path="saved" element={<Saved />} />
+          <Route path="marketplace" element={<Marketplace />} />
           <Route path="admin" element={
             <AdminRoute>
               <Admin />

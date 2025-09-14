@@ -15,13 +15,21 @@ const NotificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['like', 'comment'], // Peut être étendu avec 'follow', etc.
+        enum: ['like', 'comment', 'follow', 'group_invite'],
         required: true,
     },
     // Le post qui a été aimé ou commenté
     post: {
         type: mongoose.Schema.ObjectId,
         ref: 'Post',
+    },
+    // Message de la notification
+    message: {
+        type: String
+    },
+    // Données supplémentaires (pour les invitations de groupe)
+    data: {
+        type: mongoose.Schema.Types.Mixed
     },
     read: {
         type: Boolean,

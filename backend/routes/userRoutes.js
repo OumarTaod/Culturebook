@@ -30,7 +30,7 @@
  */
 
 const express = require('express');
-const { getUserById, getUserPosts, updateUser, changePassword, getSuggestions, followUser, unfollowUser, listUsers, getUserFollowing, getUserFollowers } = require('../controllers/userController');
+const { getUserById, getUserPosts, updateUser, changePassword, getSuggestions, followUser, unfollowUser, listUsers, getUserFollowing, getUserFollowers, getContacts } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -39,6 +39,7 @@ const router = express.Router();
 // ========== ROUTES GÉNÉRALES ==========
 router.get('/', listUsers);                    // Liste tous les utilisateurs
 router.get('/suggestions', protect, getSuggestions); // Suggestions (auth requise)
+router.get('/contacts', protect, getContacts); // Contacts (abonnés + abonnements)
 router.patch('/change-password', protect, changePassword); // Changement mot de passe
 
 // ========== ACTIONS D'ABONNEMENT ==========

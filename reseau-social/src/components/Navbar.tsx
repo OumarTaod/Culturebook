@@ -131,7 +131,8 @@ const Navbar = () => {
     <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
       <div className="nav-left">
         <Link to="/" className="navbar-brand" aria-label="Accueil CultureBook">
-          CultureBook
+          <span className="brand-icon">🌍</span>
+          <span className="brand-text">CultureBook</span>
         </Link>
       </div>
 
@@ -147,7 +148,15 @@ const Navbar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/follow" className={getNavLinkClass} aria-label="Suivre">
+              <NavLink to="/explore" className={getNavLinkClass} aria-label="Explorer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/follow" className={getNavLinkClass} aria-label="Communauté">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                   <circle cx="9" cy="7" r="4"/>
@@ -174,6 +183,13 @@ const Navbar = () => {
                 </svg>
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/marketplace" className={getNavLinkClass} aria-label="Marketplace">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+              </NavLink>
+            </li>
           </ul>
         </div>
       )}
@@ -184,24 +200,44 @@ const Navbar = () => {
             <div className="nav-avatar" aria-hidden="true">{user?.name?.[0] || 'U'}</div>
             <span className="nav-username">{user?.name}</span>
           </Link>
-          <button className="nav-action" aria-label="Créer">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
-          </button>
+
           <div className="user-menu-container" ref={menuRef}>
             <button 
               onClick={() => setShowUserMenu(!showUserMenu)} 
-              className="nav-action" 
+              className="nav-action menu-btn" 
               aria-label="Menu utilisateur"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
               </svg>
             </button>
             {showUserMenu && (
               <div className="user-menu">
-                {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                <Link to="/friends" onClick={() => setShowUserMenu(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-1c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v1h2v-1c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v1h2v-1c0-2.21-1.79-4-4-4h-2c-1.1 0-2 .9-2 2 0-1.1-.9-2-2-2H6c-2.21 0-4 1.79-4 4v1h2z"/>
+                  </svg>
+                  🧑🤝🧑 Amis
+                </Link>
+                <Link to="/groups" onClick={() => setShowUserMenu(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12.75c1.63 0 3.07.39 4.24.9 1.08.48 1.76 1.56 1.76 2.73V18H6v-1.61c0-1.18.68-2.26 1.76-2.73 1.17-.52 2.61-.91 4.24-.91zM4 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-1.93.21-2.78.58C.48 14.9 0 15.62 0 16.43V18h4.5v-1.61c0-.83.23-1.61.63-2.29zM20 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm2.78 1.58c-.85-.37-1.79-.58-2.78-.58-.39 0-.76.04-1.13.1.4.68.63 1.46.63 2.29V18H24v-1.57c0-.81-.48-1.53-1.22-1.85z"/>
+                  </svg>
+                  👥 Groupes
+                </Link>
+                <Link to="/saved" onClick={() => setShowUserMenu(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                  💾 Sauvegardés
+                </Link>
+                <Link to="/marketplace" onClick={() => setShowUserMenu(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                  </svg>
+                  🛒 Marketplace
+                </Link>
+                {(user?.role === 'admin' || user?.role === 'superadmin' || localStorage.getItem('userRole') === 'admin' || localStorage.getItem('userRole') === 'superadmin') && (
                   <Link to="/admin" onClick={() => setShowUserMenu(false)}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>

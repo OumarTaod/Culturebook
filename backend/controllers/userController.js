@@ -247,6 +247,30 @@ exports.getUserFollowers = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: user.followers });
 });
 
+// GET /api/users/contacts - Récupère les contacts (abonnés + abonnements)
+exports.getContacts = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id)
+    .populate('followers', 'name email avatarUrl')
+    .populate('following', 'name email avatarUrl');
+  
+  if (!user) return next(new ErrorResponse('Utilisateur non trouvé', 404));
+  
+  const contacts = [
+    ...user.followers.map(follower => ({ ...follower.toObject(), type: 'follower', isInvited: false })),
+    ...user.following.map(following => ({ ...following.toObject(), type: 'following', isInvited: false }))
+  ];
+  
+  // Supprimer les doublons
+  const uniqueContacts = contacts.filter((contact, index, self) => 
+    index === self.findIndex(c => c._id.toString() === contact._id.toString())
+  );
+  
+  res.status(200).json({
+    success: true,
+    data: uniqueContacts
+  });
+});
+
 /**
  * ===========================================
  *                NOTES TECHNIQUES

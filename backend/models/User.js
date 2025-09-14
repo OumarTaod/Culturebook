@@ -60,6 +60,10 @@ const UserSchema = new mongoose.Schema({
         enum: ['user', 'admin', 'superadmin'],
         default: 'user'
     },
+    banned: {
+        type: Boolean,
+        default: false
+    },
     
     // ========== PROFIL UTILISATEUR ==========
     avatarUrl: {

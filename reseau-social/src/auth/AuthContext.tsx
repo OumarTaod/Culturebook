@@ -38,14 +38,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           const response = await api.get('/auth/profile');
-          setUser(response.data);
-          localStorage.setItem('userId', response.data._id);
+          const userData = response.data;
+          console.log('Profil utilisateur chargé:', userData);
+          setUser(userData);
+          localStorage.setItem('userId', userData._id);
+          // Sauvegarder le rôle pour persistance
+          if (userData.role) {
+            localStorage.setItem('userRole', userData.role);
+          }
           setIsAuthenticated(true);
           setIsLoading(false);
         } catch (error) {
-          console.error("Session invalide, déconnexion");
+          console.error("Session invalide, déconnexion", error);
           localStorage.removeItem('token');
           localStorage.removeItem('userId');
+          localStorage.removeItem('userRole');
           setIsAuthenticated(false);
           setUser(null);
           setRedirectTo('/login');
@@ -69,6 +76,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (authData: AuthResponse) => {
     localStorage.setItem('token', authData.token);
     localStorage.setItem('userId', authData.user._id);
+    if (authData.user.role) {
+      localStorage.setItem('userRole', authData.user.role);
+    }
+    console.log('Connexion utilisateur:', authData.user);
     setUser(authData.user);
     setIsAuthenticated(true);
     setRedirectTo('/');
@@ -77,6 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
     setUser(null);
     setIsAuthenticated(false);
     setRedirectTo('/login');

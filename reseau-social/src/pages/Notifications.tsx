@@ -7,6 +7,7 @@ const NOTIFICATION_TYPES = {
   LIKE: 'like',
   COMMENT: 'comment',
   FOLLOW: 'follow',
+  GROUP_INVITE: 'group_invite',
 } as const;
 
 type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
@@ -25,6 +26,11 @@ interface Notification {
     textContent: string;
     mediaUrl?: string;
     imageUrl?: string;
+  };
+  message?: string;
+  data?: {
+    groupId?: string;
+    groupName?: string;
   };
   read: boolean;
   createdAt: string;
@@ -153,6 +159,20 @@ const Notifications = () => {
     setHiddenNotifications(prev => [...prev, ...allIds]);
   }, [notifications]);
 
+  const handleGroupInvite = async (groupId: string, action: 'accept' | 'decline', notificationId: string) => {
+    try {
+      await api.post(`/groups/${action}-invite`, { groupId });
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      
+      if (action === 'accept') {
+        navigate(`/groups/${groupId}`);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la gestion de l\'invitation:', error);
+      setError('Erreur lors de la gestion de l\'invitation');
+    }
+  };
+
   const getNotificationText = (notification: Notification) => {
     switch (notification.type) {
       case NOTIFICATION_TYPES.LIKE:
@@ -161,6 +181,8 @@ const Notifications = () => {
         return `${notification.sender.name} a commenté votre publication`;
       case NOTIFICATION_TYPES.FOLLOW:
         return `${notification.sender.name} a commencé à vous suivre`;
+      case NOTIFICATION_TYPES.GROUP_INVITE:
+        return notification.message || `${notification.sender.name} vous a invité à rejoindre un groupe`;
       default:
         return 'Nouvelle notification';
     }
@@ -174,6 +196,8 @@ const Notifications = () => {
         return '💬';
       case NOTIFICATION_TYPES.FOLLOW:
         return '👤';
+      case NOTIFICATION_TYPES.GROUP_INVITE:
+        return '👥';
       default:
         return '🔔';
     }
@@ -259,6 +283,9 @@ const Notifications = () => {
                       {notification.type === 'like' && ' a aimé votre publication'}
                       {notification.type === 'comment' && ' a commenté votre publication'}
                       {notification.type === 'follow' && ' a commencé à vous suivre'}
+                      {notification.type === 'group_invite' && (
+                        <span> vous a invité à rejoindre le groupe "{notification.data?.groupName}"</span>
+                      )}
                     </span>
                   </p>
                   <span className="notification-time">
@@ -278,6 +305,29 @@ const Notifications = () => {
                     <p className="preview-text">
                       {notification.post.textContent?.substring(0, 80)}{notification.post.textContent && '...'}
                     </p>
+                  </div>
+                )}
+                
+                {notification.type === 'group_invite' && (
+                  <div className="group-invite-actions">
+                    <button 
+                      className="accept-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGroupInvite(notification.data?.groupId || '', 'accept', notification._id);
+                      }}
+                    >
+                      Accepter
+                    </button>
+                    <button 
+                      className="decline-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGroupInvite(notification.data?.groupId || '', 'decline', notification._id);
+                      }}
+                    >
+                      Décliner
+                    </button>
                   </div>
                 )}
               </div>

@@ -40,6 +40,11 @@ const PostSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Commentaire'
     }],
+    groupId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now
