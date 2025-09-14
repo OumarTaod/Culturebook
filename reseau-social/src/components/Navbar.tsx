@@ -1,127 +1,180 @@
+// Importation des composants de routage React Router
 import { Link, NavLink, useLocation } from 'react-router-dom';
+// Importation du type pour les props de NavLink
 import type { NavLinkProps } from 'react-router-dom';
+// Importation du contexte d'authentification
 import { useAuth } from '../auth/AuthContext';
+// Importation des styles CSS de la navbar
 import './Navbar.css';
+// Importation des hooks React nécessaires
 import { useEffect, useState, useRef } from 'react';
+// Importation du service API pour les requêtes HTTP
 import api from '../services/api';
+// Importation du service Socket.IO pour les notifications temps réel
 import { socketService } from '../services/socketService';
 
+// Constante pour l'intervalle de polling des notifications (30 secondes)
 const POLL_MS = 30000;
 
+// Composant principal de la barre de navigation
 const Navbar = () => {
+  // Récupération des données d'authentification depuis le contexte
   const { isAuthenticated, logout, user } = useAuth();
+  // État pour gérer l'effet de scroll sur la navbar
   const [scrolled, setScrolled] = useState(false);
+  // Compteur de notifications non lues
   const [unreadCount, setUnreadCount] = useState(0);
+  // Message de notification toast temporaire
   const [toast, setToast] = useState<string>('');
+  // État d'affichage du menu utilisateur déroulant
   const [showUserMenu, setShowUserMenu] = useState(false);
+  // État d'affichage de la modal de changement de mot de passe
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  // État d'affichage de la modal de suppression de compte
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  // Champs du formulaire de changement de mot de passe
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
+  // Hook pour récupérer la route actuelle
   const location = useLocation();
+  // Référence pour détecter les clics en dehors du menu utilisateur
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Effect pour gérer l'effet de scroll sur la navbar
   useEffect(() => {
+    // Fonction pour détecter le scroll et appliquer la classe 'scrolled'
     const onScroll = () => setScrolled(window.scrollY > 0);
+    // Vérification initiale du scroll
     onScroll();
+    // Ajout de l'écouteur d'événement scroll avec option passive pour les performances
     window.addEventListener('scroll', onScroll, { passive: true });
+    // Nettoyage de l'écouteur lors du démontage du composant
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Fonction pour déterminer les classes CSS des liens de navigation selon leur état actif
   const getNavLinkClass: NavLinkProps['className'] = ({ isActive }) =>
     isActive ? 'nav-link active' : 'nav-link';
 
+  // Effect pour gérer les notifications en temps réel
   useEffect(() => {
+    // Ne pas exécuter si l'utilisateur n'est pas authentifié
     if (!isAuthenticated) return;
 
+    // Fonction pour récupérer le nombre de notifications non lues
     const fetchUnread = async () => {
       try {
+        // Appel API pour récupérer les notifications
         const res = await api.get('/notifications');
         const list = res.data?.data || [];
+        // Calcul du nombre de notifications non lues
         const count = (list as any[]).reduce((acc, n: any) => acc + (n.read ? 0 : 1), 0);
         setUnreadCount(count);
       } catch {}
     };
 
-    // Initial fetch
+    // Récupération initiale des notifications
     fetchUnread();
 
-    // Polling
+    // Mise en place du polling pour vérifier périodiquement les nouvelles notifications
     const id = setInterval(fetchUnread, POLL_MS);
 
-    // Socket (optional realtime)
+    // Connexion Socket.IO pour les notifications en temps réel
     socketService.connect();
     const unsub = socketService.onNotification((notif) => {
+      // Incrémentation du compteur de notifications
       setUnreadCount((c) => c + 1);
+      // Génération du message de notification selon le type
       const text = notif.type === 'like'
         ? `${notif.sender?.name || 'Quelqu\'un'} a aimé votre publication`
         : notif.type === 'comment'
           ? `${notif.sender?.name || 'Quelqu\'un'} a commenté votre publication`
           : `${notif.sender?.name || 'Quelqu\'un'} vous a notifié`;
+      // Affichage du toast de notification
       setToast(text);
+      // Masquage automatique du toast après 4 secondes
       setTimeout(() => setToast(''), 4000);
     });
 
-    // Reset when viewing notifications
+    // Remise à zéro du compteur quand on consulte la page des notifications
     if (location.pathname === '/notifications') {
       setUnreadCount(0);
     }
 
+    // Nettoyage lors du démontage du composant
     return () => {
-      clearInterval(id);
-      unsub();
-      // do not disconnect socket here (other pages may use it)
+      clearInterval(id); // Arrêt du polling
+      unsub(); // Déconnexion des notifications Socket.IO
+      // Note: on ne déconnecte pas complètement le socket car d'autres pages peuvent l'utiliser
     };
   }, [isAuthenticated, location.pathname]);
 
-  // Fermer le menu au clic extérieur
+  // Effect pour fermer le menu utilisateur lors d'un clic en dehors
   useEffect(() => {
+    // Fonction pour détecter les clics en dehors du menu
     const handleClickOutside = (event: MouseEvent) => {
+      // Si le clic est en dehors du menu, le fermer
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
       }
     };
+    // Ajout de l'écouteur d'événement sur le document
     document.addEventListener('mousedown', handleClickOutside);
+    // Nettoyage de l'écouteur lors du démontage
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Fonction pour gérer le changement de mot de passe
   const handleChangePassword = async () => {
+    // Vérification que les mots de passe correspondent
     if (newPassword !== confirmPassword) {
       alert('Les mots de passe ne correspondent pas');
       return;
     }
     try {
+      // Appel API pour changer le mot de passe
       await api.put('/auth/change-password', {
         currentPassword,
         newPassword
       });
+      // Confirmation du succès
       alert('Mot de passe modifié avec succès');
+      // Fermeture de la modal et réinitialisation des champs
       setShowPasswordModal(false);
       setNewPassword('');
       setConfirmPassword('');
       setCurrentPassword('');
     } catch (error) {
+      // Gestion des erreurs
       alert('Erreur lors du changement de mot de passe');
     }
   };
 
+  // Fonction pour gérer la suppression du compte utilisateur
   const handleDeleteAccount = async () => {
     try {
+      // Appel API pour supprimer le compte
       await api.delete('/auth/delete-account');
+      // Déconnexion automatique après suppression
       logout();
     } catch (error) {
+      // Gestion des erreurs de suppression
       alert('Erreur lors de la suppression du compte');
     }
   };
 
+  // Fonction pour confirmer et exécuter la déconnexion
   const confirmLogout = () => {
+    // Demande de confirmation avant déconnexion
     if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
       logout();
     }
   };
 
+  // Fonction pour confirmer la suppression du compte
   const confirmDeleteAccount = () => {
+    // Double confirmation pour la suppression de compte (action irréversible)
     if (confirm('Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.')) {
       setShowDeleteModal(true);
     }
@@ -155,7 +208,7 @@ const Navbar = () => {
                 </svg>
               </NavLink>
             </li>
-            <li>
+            <li className="hidden-small">
               <NavLink to="/follow" className={getNavLinkClass} aria-label="Communauté">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -183,7 +236,7 @@ const Navbar = () => {
                 </svg>
               </NavLink>
             </li>
-            <li>
+            <li className="hidden-small">
               <NavLink to="/marketplace" className={getNavLinkClass} aria-label="Marketplace">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>

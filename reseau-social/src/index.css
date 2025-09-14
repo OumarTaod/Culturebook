@@ -1,33 +1,62 @@
-/* Global Design System - Elegant, modern, professional */
+/**
+ * =============================================
+ *        SYSTÈME DE DESIGN GLOBAL - CULTUREBOOK
+ * =============================================
+ * 
+ * Ce fichier définit le système de design complet de l'application :
+ * - Variables CSS pour la cohérence visuelle
+ * - Styles de base et reset CSS
+ * - Composants réutilisables (boutons, inputs, cards)
+ * - Système responsive pour tous les écrans
+ * - Utilitaires et helpers CSS
+ * 
+ * PHILOSOPHIE DESIGN :
+ * - Élégant, moderne et professionnel
+ * - Mobile-first et responsive
+ * - Accessibilité et UX optimisées
+ * - Performance et maintenabilité
+ * 
+ * =============================================
+ */
 
-/* CSS Variables: colors, spacing, radii, shadows, typography */
+/* ========== VARIABLES CSS GLOBALES ========== */
+/* Définition de toutes les variables de design : couleurs, espacements, rayons, ombres, typographie */
 :root {
   /* Colors */
-  --color-primary: #4f46e5; /* indigo-600 */
-  --color-primary-600: #4338ca; /* indigo-700 */
-  --color-accent: #06b6d4; /* cyan-500 */
-  --color-success: #16a34a; /* green-600 */
-  --color-danger: #dc2626; /* red-600 */
-  --color-warning: #d97706; /* amber-600 */
+  --color-primary: #4f46e5;
+  --color-primary-600: #4338ca;
+  --color-accent: #06b6d4;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
 
-  --color-bg: #f5f7fb; /* soft background */
-  --color-surface: #ffffff; /* cards & surfaces */
-  --color-text: #111827; /* gray-900 */
-  --color-muted: #6b7280; /* gray-500 */
-  --color-border: #e5e7eb; /* gray-200 */
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
 
-  /* Radii */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-full: 9999px;
+  /* Responsive Breakpoints */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 6px 20px rgba(17, 24, 39, 0.08);
-  --shadow-lg: 0 15px 35px rgba(17, 24, 39, 0.12);
+  /* Responsive Spacing */
+  --space-xs: 2px;
+  --space-sm: 4px;
+  --space-md: 8px;
+  --space-lg: 12px;
+  --space-xl: 16px;
+  --space-2xl: 20px;
+  --space-3xl: 24px;
+  --space-4xl: 32px;
+  --space-5xl: 40px;
+  --space-6xl: 48px;
 
-  /* Spacing */
+  /* Legacy spacing (maintenu pour compatibilité) */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -37,10 +66,34 @@
   --space-8: 32px;
   --space-10: 40px;
 
-  /* Typography */
+  /* Responsive Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Responsive Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 6px 20px rgba(17, 24, 39, 0.08);
+  --shadow-lg: 0 15px 35px rgba(17, 24, 39, 0.12);
+  --shadow-xl: 0 25px 50px rgba(17, 24, 39, 0.15);
+
+  /* Responsive Typography */
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
   --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --line-height-tight: 1.25;
   --line-height-base: 1.6;
+  --line-height-relaxed: 1.75;
 }
 
 /* Reset & Base */
@@ -59,7 +112,9 @@ body {
     var(--color-bg);
 }
 
-/* Container responsive */
+/* ========== SYSTÈME RESPONSIVE COMPLET ========== */
+
+/* Container responsive avec breakpoints étendus */
 .container { 
   width: 100%; 
   max-width: 1200px; 
@@ -67,38 +122,136 @@ body {
   padding: 0 var(--space-6); 
 }
 
-@media (max-width: 1024px) {
-  .container { padding: 0 var(--space-4); }
+/* Extra Large screens (1536px+) */
+@media (min-width: 1536px) {
+  .container { 
+    max-width: 1400px;
+    padding: 0 var(--space-6xl);
+  }
 }
 
-@media (max-width: 768px) {
+/* Large screens (1280px - 1535px) */
+@media (max-width: 1535px) and (min-width: 1280px) {
+  .container { 
+    max-width: 1200px;
+    padding: 0 var(--space-5xl);
+  }
+}
+
+/* Desktop (1024px - 1279px) */
+@media (max-width: 1279px) and (min-width: 1024px) {
+  .container { 
+    padding: 0 var(--space-4xl);
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .container { 
+    padding: 0 var(--space-3xl);
+  }
+}
+
+/* Mobile Large (480px - 767px) */
+@media (max-width: 767px) and (min-width: 480px) {
   body {
-    padding-top: 0;
-    padding-bottom: 56px;
+    padding-top: 56px !important;
+    padding-bottom: 60px !important;
   }
   
-  .container { padding: 0 var(--space-3); }
+  .container { 
+    padding: 0 var(--space-xl);
+  }
   
-  /* Typography responsive */
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
+  h1 { font-size: var(--font-size-2xl); }
+  h2 { font-size: var(--font-size-xl); }
+  h3 { font-size: var(--font-size-lg); }
   
-  /* Cards responsive */
   .card {
-    padding: var(--space-4);
+    padding: var(--space-xl);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+  }
+  
+  button, .btn {
+    padding: 12px 16px;
+    font-size: var(--font-size-sm);
+    min-height: 44px;
+    border-radius: var(--radius-sm);
+  }
+  
+  input, select, textarea {
+    padding: 12px var(--space-lg);
+    font-size: 16px;
+    min-height: 44px;
     border-radius: var(--radius-sm);
   }
 }
 
-@media (max-width: 480px) {
-  .container { padding: 0 var(--space-2); }
+/* Mobile Medium (320px - 479px) */
+@media (max-width: 479px) and (min-width: 320px) {
+  body {
+    padding-top: 56px !important;
+    padding-bottom: 56px !important;
+  }
   
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.25rem; }
-  h3 { font-size: 1.125rem; }
+  .container { 
+    padding: 0 var(--space-lg);
+  }
   
-  .card { padding: var(--space-3); }
+  h1 { font-size: var(--font-size-xl); }
+  h2 { font-size: var(--font-size-lg); }
+  h3 { font-size: var(--font-size-base); }
+  
+  .card { 
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border-radius: var(--radius-sm);
+  }
+  
+  button, .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px var(--space-lg);
+    font-size: var(--font-size-sm);
+    min-height: 48px;
+  }
+  
+  input, select, textarea {
+    font-size: 16px;
+    padding: 14px var(--space-lg);
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Extra Small screens (< 320px) */
+@media (max-width: 319px) {
+  body {
+    padding-top: 52px !important;
+    padding-bottom: 52px !important;
+  }
+  
+  .container { 
+    padding: 0 var(--space-md);
+  }
+  
+  h1 { font-size: var(--font-size-lg); }
+  h2 { font-size: var(--font-size-base); }
+  h3 { font-size: var(--font-size-sm); }
+  
+  .card { 
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    border-radius: var(--radius-xs);
+  }
+  
+  button, .btn {
+    width: 100%;
+    padding: 12px var(--space-md);
+    font-size: var(--font-size-xs);
+    min-height: 44px;
+  }
 }
 
 /* Typography */
@@ -174,10 +327,70 @@ input:focus, select:focus, textarea:focus {
   padding: var(--space-6);
 }
 
-/* Layout helpers */
-.container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--space-6); }
-.section { padding: var(--space-10) 0; }
-.section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-6); }
+/* ========== LAYOUT HELPERS RESPONSIVE ========== */
+.section { 
+  padding: var(--space-5xl) 0; 
+}
+
+.section-title { 
+  font-size: var(--font-size-2xl); 
+  font-weight: 700; 
+  margin-bottom: var(--space-3xl); 
+  line-height: var(--line-height-tight);
+}
+
+/* Responsive Grid System */
+.grid {
+  display: grid;
+  gap: var(--space-3xl);
+}
+
+.grid-cols-1 { grid-template-columns: 1fr; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Responsive adjustments */
+@media (max-width: 1023px) {
+  .section { padding: var(--space-4xl) 0; }
+  .section-title { font-size: var(--font-size-xl); }
+  .grid { gap: var(--space-2xl); }
+  .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-cols-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .section { padding: var(--space-3xl) 0; }
+  .section-title { 
+    font-size: var(--font-size-lg); 
+    margin-bottom: var(--space-2xl);
+  }
+  .grid { gap: var(--space-xl); }
+  .grid-cols-4,
+  .grid-cols-3,
+  .grid-cols-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 479px) {
+  .section { padding: var(--space-2xl) 0; }
+  .section-title { 
+    font-size: var(--font-size-base); 
+    margin-bottom: var(--space-xl);
+  }
+  .grid { gap: var(--space-lg); }
+}
+
+/* Flexbox utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
 
 /* Navbar base enhancements (class names preserved; detailed styles live in navbar.css) */
 header { backdrop-filter: saturate(150%) blur(8px); }
@@ -196,14 +409,89 @@ html { scroll-behavior: smooth; }
 /* Selection */
 ::selection { background: rgba(79, 70, 229, 0.18); }
 
-/* Utility classes */
+/* ========== UTILITY CLASSES RESPONSIVE ========== */
+
+/* Shadows */
+.shadow-xs { box-shadow: var(--shadow-xs) !important; }
 .shadow-sm { box-shadow: var(--shadow-sm) !important; }
 .shadow-md { box-shadow: var(--shadow-md) !important; }
 .shadow-lg { box-shadow: var(--shadow-lg) !important; }
-.rounded { border-radius: var(--radius-sm) !important; }
+.shadow-xl { box-shadow: var(--shadow-xl) !important; }
+
+/* Border radius */
+.rounded-xs { border-radius: var(--radius-xs) !important; }
+.rounded-sm { border-radius: var(--radius-sm) !important; }
 .rounded-md { border-radius: var(--radius-md) !important; }
 .rounded-lg { border-radius: var(--radius-lg) !important; }
-.surface { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.rounded-xl { border-radius: var(--radius-xl) !important; }
+.rounded-full { border-radius: var(--radius-full) !important; }
+
+/* Surfaces */
+.surface { 
+  background: var(--color-surface); 
+  border: 1px solid var(--color-border); 
+  border-radius: var(--radius-md); 
+}
+
+/* Spacing utilities */
+.p-xs { padding: var(--space-xs) !important; }
+.p-sm { padding: var(--space-sm) !important; }
+.p-md { padding: var(--space-md) !important; }
+.p-lg { padding: var(--space-lg) !important; }
+.p-xl { padding: var(--space-xl) !important; }
+
+.m-xs { margin: var(--space-xs) !important; }
+.m-sm { margin: var(--space-sm) !important; }
+.m-md { margin: var(--space-md) !important; }
+.m-lg { margin: var(--space-lg) !important; }
+.m-xl { margin: var(--space-xl) !important; }
+
+/* Responsive visibility */
+.hidden-xs { display: none !important; }
+.hidden-sm { display: none !important; }
+.hidden-md { display: none !important; }
+.hidden-lg { display: none !important; }
+
+@media (min-width: 320px) {
+  .show-xs { display: block !important; }
+  .hidden-xs { display: block !important; }
+}
+
+@media (min-width: 480px) {
+  .show-sm { display: block !important; }
+  .hidden-sm { display: block !important; }
+}
+
+@media (min-width: 768px) {
+  .show-md { display: block !important; }
+  .hidden-md { display: block !important; }
+}
+
+@media (min-width: 1024px) {
+  .show-lg { display: block !important; }
+  .hidden-lg { display: block !important; }
+}
+
+/* Text utilities */
+.text-xs { font-size: var(--font-size-xs) !important; }
+.text-sm { font-size: var(--font-size-sm) !important; }
+.text-base { font-size: var(--font-size-base) !important; }
+.text-lg { font-size: var(--font-size-lg) !important; }
+.text-xl { font-size: var(--font-size-xl) !important; }
+.text-2xl { font-size: var(--font-size-2xl) !important; }
+
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+/* Width utilities */
+.w-full { width: 100% !important; }
+.w-auto { width: auto !important; }
+.max-w-xs { max-width: 320px !important; }
+.max-w-sm { max-width: 480px !important; }
+.max-w-md { max-width: 768px !important; }
+.max-w-lg { max-width: 1024px !important; }
+.max-w-xl { max-width: 1280px !important; }
 
 /* Animations */
 /* .fade-in { animation: fadeIn .25s ease both; }

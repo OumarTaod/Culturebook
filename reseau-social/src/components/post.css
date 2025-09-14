@@ -113,6 +113,7 @@
 }
 .post-action-button:hover { background: #f3f4f6; }
 .post-action-button.liked { color: var(--like); }
+.post-action-button.saved { color: #10b981; }
 
 /* Comments */
 .comment-section {

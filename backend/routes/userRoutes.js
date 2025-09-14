@@ -30,7 +30,7 @@
  */
 
 const express = require('express');
-const { getUserById, getUserPosts, updateUser, changePassword, getSuggestions, followUser, unfollowUser, listUsers, getUserFollowing, getUserFollowers, getContacts } = require('../controllers/userController');
+const { getUserById, getUserPosts, updateUser, changePassword, getSuggestions, followUser, unfollowUser, listUsers, getUserFollowing, getUserFollowers, getContacts, savePost, unsavePost, getSavedPosts, isPostSaved } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -41,6 +41,10 @@ router.get('/', listUsers);                    // Liste tous les utilisateurs
 router.get('/suggestions', protect, getSuggestions); // Suggestions (auth requise)
 router.get('/contacts', protect, getContacts); // Contacts (abonnés + abonnements)
 router.patch('/change-password', protect, changePassword); // Changement mot de passe
+router.get('/saved-posts', protect, getSavedPosts); // Publications sauvegardées
+router.get('/posts/:id/is-saved', protect, isPostSaved); // Vérifier si sauvegardé
+router.post('/posts/:id/save', protect, savePost); // Sauvegarder une publication
+router.delete('/posts/:id/save', protect, unsavePost); // Désauvegarder une publication
 
 // ========== ACTIONS D'ABONNEMENT ==========
 router.get('/:id/is-following', protect, (req, res) => {

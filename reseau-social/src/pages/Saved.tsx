@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import Post from '../components/Post';
+import api from '../services/api';
 import './Saved.css';
 
 const Saved = () => {
@@ -12,10 +13,8 @@ const Saved = () => {
   useEffect(() => {
     const fetchSavedPosts = async () => {
       try {
-        // TODO: Implémenter l'API des posts sauvegardés
-        // const response = await api.get('/users/saved-posts');
-        // setSavedPosts(response.data.data);
-        setSavedPosts([]);
+        const response = await api.get('/users/saved-posts');
+        setSavedPosts(response.data.data || []);
       } catch (error) {
         console.error('Erreur lors du chargement des posts sauvegardés:', error);
         setSavedPosts([]);
@@ -29,12 +28,23 @@ const Saved = () => {
     if (activeFilter === 'Tous') {
       setFilteredPosts(savedPosts);
     } else {
-      setFilteredPosts(savedPosts.filter(post => post.type === activeFilter));
+      const filterMap = {
+        'Contes': 'Conte',
+        'Proverbes': 'Proverbe', 
+        'Histoires': 'Histoire'
+      };
+      const filterType = filterMap[activeFilter] || activeFilter;
+      setFilteredPosts(savedPosts.filter(post => post.type === filterType));
     }
   }, [savedPosts, activeFilter]);
 
-  const handleDeletePost = (postId: string) => {
-    setSavedPosts(prev => prev.filter(post => post._id !== postId));
+  const handleDeletePost = async (postId: string) => {
+    try {
+      await api.delete(`/users/posts/${postId}/save`);
+      setSavedPosts(prev => prev.filter(post => post._id !== postId));
+    } catch (error) {
+      console.error('Erreur lors de la désauvegarde:', error);
+    }
   };
 
   return (

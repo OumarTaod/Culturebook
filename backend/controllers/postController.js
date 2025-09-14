@@ -1,7 +1,12 @@
+// Importation du modèle Post pour les opérations sur les publications
 const Post = require('../models/Post');
-const Commentaire = require('../models/commentaire'); // Utilisation du modèle 'commentaire.js'
+// Importation du modèle Commentaire pour gérer les commentaires
+const Commentaire = require('../models/commentaire');
+// Importation du modèle Notification pour les notifications temps réel
 const Notification = require('../models/Notification');
+// Importation du gestionnaire d'erreurs asynchrones
 const asyncHandler = require('../utils/asyncHandler');
+// Importation de la classe d'erreur personnalisée
 const ErrorResponse = require('../utils/errorResponse');
 
 /**

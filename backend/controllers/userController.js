@@ -271,6 +271,53 @@ exports.getContacts = asyncHandler(async (req, res, next) => {
   });
 });
 
+// POST /api/users/posts/:id/save - Sauvegarder une publication
+exports.savePost = asyncHandler(async (req, res, next) => {
+  const postId = req.params.id;
+  const user = await User.findById(req.user._id);
+  
+  if (!user.savedPosts.includes(postId)) {
+    user.savedPosts.push(postId);
+    await user.save();
+  }
+  
+  res.status(200).json({ success: true, message: 'Publication sauvegardée' });
+});
+
+// DELETE /api/users/posts/:id/save - Désauvegarder une publication
+exports.unsavePost = asyncHandler(async (req, res, next) => {
+  const postId = req.params.id;
+  const user = await User.findById(req.user._id);
+  
+  user.savedPosts = user.savedPosts.filter(id => id.toString() !== postId);
+  await user.save();
+  
+  res.status(200).json({ success: true, message: 'Publication désauvegardée' });
+});
+
+// GET /api/users/saved-posts - Récupérer les publications sauvegardées
+exports.getSavedPosts = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id).select('savedPosts');
+  
+  if (!user) {
+    return next(new ErrorResponse('Utilisateur non trouvé', 404));
+  }
+  
+  const savedPosts = await Post.find({ _id: { $in: user.savedPosts } })
+    .populate('author', 'name avatarUrl')
+    .sort({ createdAt: -1 });
+  
+  res.status(200).json({ success: true, data: savedPosts });
+});
+
+// GET /api/users/posts/:id/is-saved - Vérifier si un post est sauvegardé
+exports.isPostSaved = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id).select('savedPosts');
+  const isSaved = user.savedPosts.includes(req.params.id);
+  
+  res.status(200).json({ success: true, isSaved });
+});
+
 /**
  * ===========================================
  *                NOTES TECHNIQUES

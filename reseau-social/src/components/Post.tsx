@@ -50,6 +50,8 @@ const Post = ({ post, onDelete }: PostProps) => {
   const [editContent, setEditContent] = useState(post.textContent || '');
   const [editLanguage, setEditLanguage] = useState(post.language || 'Français');
   const [editRegion, setEditRegion] = useState(post.region || 'Conakry');
+  const [saved, setSaved] = useState(false);
+  const [savePending, setSavePending] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const authorId = post.author?._id || 'anon';
@@ -67,6 +69,21 @@ const Post = ({ post, onDelete }: PostProps) => {
     setLiked(initialLiked);
     setLikesCount(likeIds.length);
   }, [initialLiked, likeIds]);
+
+  // Vérifier si le post est sauvegardé au chargement
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (!user) return;
+      try {
+        const response = await api.get(`/users/posts/${post._id}/is-saved`);
+        setSaved(response.data.isSaved);
+      } catch (err) {
+        console.error('Erreur vérification sauvegarde:', err);
+      }
+    };
+    
+    checkSavedStatus();
+  }, [post._id, user]);
 
   // Fermer le menu au clic extérieur
   useEffect(() => {
@@ -151,6 +168,24 @@ const Post = ({ post, onDelete }: PostProps) => {
     setEditLanguage(post.language || 'Français');
     setEditRegion(post.region || 'Conakry');
     setIsEditing(false);
+  };
+
+  const handleSaveToggle = async () => {
+    if (!user || savePending) return;
+    setSavePending(true);
+    try {
+      if (saved) {
+        await api.delete(`/users/posts/${post._id}/save`);
+        setSaved(false);
+      } else {
+        await api.post(`/users/posts/${post._id}/save`);
+        setSaved(true);
+      }
+    } catch (err) {
+      console.error('Erreur sauvegarde:', err);
+    } finally {
+      setSavePending(false);
+    }
   };
 
   const isOwnPost = user && post.author?._id === user._id;
@@ -269,6 +304,13 @@ const Post = ({ post, onDelete }: PostProps) => {
         </button>
         <button className="post-action-button" onClick={handleToggleComments}>
           💬 Commenter
+        </button>
+        <button 
+          className={`post-action-button ${saved ? 'saved' : ''}`} 
+          onClick={handleSaveToggle}
+          disabled={savePending}
+        >
+          {saved ? '💾' : '💾'} {saved ? 'Sauvegardé' : 'Sauvegarder'}
         </button>
         <button className="post-action-button">🔗 Partager</button>
       </div>
