@@ -44,7 +44,6 @@ const Notifications = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [hiddenNotifications, setHiddenNotifications] = useState<string[]>([]);
 
   const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api') as string;
   const API_ORIGIN = API_BASE.replace(/\/?api\/?$/, '');
@@ -148,16 +147,32 @@ const Notifications = () => {
     }
   }, [navigate]);
 
-  const deleteNotification = useCallback((notificationId: string, e: React.MouseEvent) => {
+  const deleteNotification = useCallback(async (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setHiddenNotifications(prev => [...prev, notificationId]);
+    setDeleting(notificationId);
+    
+    try {
+      await api.delete(`/notifications/${notificationId}`);
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+    } catch (err) {
+      console.error('Erreur lors de la suppression:', err);
+      setError('Erreur lors de la suppression de la notification');
+    } finally {
+      setDeleting(null);
+    }
   }, []);
 
-  const clearAllNotifications = useCallback(() => {
-    if (!confirm('Masquer toutes les notifications ?')) return;
-    const allIds = notifications.map(n => n._id);
-    setHiddenNotifications(prev => [...prev, ...allIds]);
-  }, [notifications]);
+  const clearAllNotifications = useCallback(async () => {
+    if (!confirm('Supprimer définitivement toutes les notifications ?')) return;
+    
+    try {
+      await api.delete('/notifications');
+      setNotifications([]);
+    } catch (err) {
+      console.error('Erreur lors de la suppression:', err);
+      setError('Erreur lors de la suppression des notifications');
+    }
+  }, []);
 
   const handleGroupInvite = async (groupId: string, action: 'accept' | 'decline', notificationId: string) => {
     try {
@@ -248,17 +263,17 @@ const Notifications = () => {
               ✓ Tout lire
             </button>
           )}
-          {notifications.filter(n => !hiddenNotifications.includes(n._id)).length > 0 && (
+          {notifications.length > 0 && (
             <button onClick={clearAllNotifications} className="clear-all-button">
-              👁️ Tout masquer
+              🗑️ Tout supprimer
             </button>
           )}
         </div>
       </div>
 
       <div className="notifications-list">
-        {notifications.filter(n => !hiddenNotifications.includes(n._id)).length > 0 ? (
-          notifications.filter(n => !hiddenNotifications.includes(n._id)).map(notification => (
+        {notifications.length > 0 ? (
+          notifications.map(notification => (
             <div
               key={notification._id}
               className={`notification-item ${!notification.read ? 'unread' : ''}`}

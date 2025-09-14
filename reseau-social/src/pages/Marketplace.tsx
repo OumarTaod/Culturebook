@@ -11,14 +11,20 @@ const Marketplace = () => {
   const [newProduct, setNewProduct] = useState({ name: '', price: '', category: 'Artisanat', description: '' });
 
   useEffect(() => {
-    const mockProducts = [
-      { _id: '1', name: 'Masque Traditionnel', price: '25 000 GNF', category: 'Artisanat', location: 'Conakry', icon: '🎭', seller: 'Alpha Bah' },
-      { _id: '2', name: 'Collier Artisanal', price: '15 000 GNF', category: 'Artisanat', location: 'Kindia', icon: '📿', seller: 'Mariama Sow' },
-      { _id: '3', name: 'Djembé Authentique', price: '80 000 GNF', category: 'Musique', location: 'Kankan', icon: '🥁', seller: 'Sekou Touré' },
-      { _id: '4', name: 'Livre de Contes', price: '12 000 GNF', category: 'Livres', location: 'Labé', icon: '📚', seller: 'Hadja Kaba' },
-      { _id: '5', name: 'Boubou Traditionnel', price: '45 000 GNF', category: 'Vêtements', location: 'Boké', icon: '👗', seller: 'Ibrahima Diallo' }
-    ];
-    setProducts(mockProducts);
+    // Charger les produits réels depuis l'API
+    const fetchProducts = async () => {
+      try {
+        // TODO: Implémenter l'API des produits
+        // const response = await api.get('/marketplace/products');
+        // setProducts(response.data.data);
+        setProducts([]);
+      } catch (error) {
+        console.error('Erreur lors du chargement des produits:', error);
+        setProducts([]);
+      }
+    };
+    
+    fetchProducts();
   }, []);
 
   useEffect(() => {

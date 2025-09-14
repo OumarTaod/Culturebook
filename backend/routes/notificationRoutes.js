@@ -1,5 +1,5 @@
 const express = require('express');
-const { getNotifications, markAsRead, markOneAsRead } = require('../controllers/notificationController');
+const { getNotifications, markAsRead, markOneAsRead, deleteNotification, deleteAllNotifications } = require('../controllers/notificationController');
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -8,12 +8,16 @@ const router = express.Router();
 router.use(protect);
 
 router.route('/')
-  .get(getNotifications);
+  .get(getNotifications)
+  .delete(deleteAllNotifications);
 
 router.route('/read')
   .patch(markAsRead);
 
 router.route('/:id/read')
   .patch(markOneAsRead);
+
+router.route('/:id')
+  .delete(deleteNotification);
 
 module.exports = router;

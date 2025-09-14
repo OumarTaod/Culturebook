@@ -210,7 +210,8 @@ Le design utilise CSS Grid pour l'en-tête et Flexbox pour les autres sections.
 /* Label de la statistique */
 .stat-label {
   font-size: 14px; /* Plus petit que la valeur */
-  color: var(--color-muted); /* Couleur plus douce */
+  color: var(--color-text); /* Couleur plus contrastée pour une meilleure lisibilité */
+  font-weight: 500; /* Légèrement plus gras pour améliorer la visibilité */
 }
 
 /* Section des publications */

@@ -55,3 +55,35 @@ exports.markOneAsRead = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, data: notification });
 });
+
+/**
+ * @desc    Supprimer une notification
+ * @route   DELETE /api/notifications/:id
+ * @access  Private
+ */
+exports.deleteNotification = asyncHandler(async (req, res, next) => {
+  const notification = await Notification.findOneAndDelete({
+    _id: req.params.id,
+    recipient: req.user.id
+  });
+
+  if (!notification) {
+    return next(new ErrorResponse('Notification non trouvée', 404));
+  }
+
+  res.status(200).json({ success: true, message: 'Notification supprimée' });
+});
+
+/**
+ * @desc    Supprimer toutes les notifications
+ * @route   DELETE /api/notifications
+ * @access  Private
+ */
+exports.deleteAllNotifications = asyncHandler(async (req, res, next) => {
+  const result = await Notification.deleteMany({ recipient: req.user.id });
+
+  res.status(200).json({ 
+    success: true, 
+    message: `${result.deletedCount} notifications supprimées` 
+  });
+});

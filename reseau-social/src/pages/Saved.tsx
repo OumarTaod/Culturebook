@@ -10,30 +10,19 @@ const Saved = () => {
   const [filteredPosts, setFilteredPosts] = useState([]);
 
   useEffect(() => {
-    // Simuler des posts sauvegardés
-    const mockSavedPosts = [
-      {
-        _id: '1',
-        textContent: 'Qui veut aller loin ménage sa monture',
-        type: 'Proverbe',
-        language: 'Français',
-        region: 'Conakry',
-        author: { _id: 'u1', name: 'Mamadou Diallo' },
-        likes: ['u2', 'u3'],
-        createdAt: new Date().toISOString()
-      },
-      {
-        _id: '2',
-        textContent: 'Il était une fois, dans un village lointain...',
-        type: 'Conte',
-        language: 'Soussou',
-        region: 'Kindia',
-        author: { _id: 'u2', name: 'Fatoumata Camara' },
-        likes: ['u1'],
-        createdAt: new Date().toISOString()
+    const fetchSavedPosts = async () => {
+      try {
+        // TODO: Implémenter l'API des posts sauvegardés
+        // const response = await api.get('/users/saved-posts');
+        // setSavedPosts(response.data.data);
+        setSavedPosts([]);
+      } catch (error) {
+        console.error('Erreur lors du chargement des posts sauvegardés:', error);
+        setSavedPosts([]);
       }
-    ];
-    setSavedPosts(mockSavedPosts);
+    };
+    
+    fetchSavedPosts();
   }, []);
 
   useEffect(() => {

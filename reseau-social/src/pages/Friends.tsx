@@ -16,22 +16,39 @@ const Friends = () => {
 
   const fetchData = async () => {
     try {
-      // Simuler des données pour le moment
-      setSuggestions([
-        { _id: '1', name: 'Mamadou Diallo', bio: 'Spécialiste des contes Peuls', isFollowing: false },
-        { _id: '2', name: 'Fatoumata Camara', bio: 'Proverbes Soussou traditionnels', isFollowing: false },
-        { _id: '3', name: 'Alpha Bah', bio: 'Histoires de Fouta Djallon', isFollowing: false }
+      // Charger les vraies données depuis l'API
+      const [followingRes, followersRes, suggestionsRes] = await Promise.all([
+        api.get(`/users/${user?._id}/following`),
+        api.get(`/users/${user?._id}/followers`),
+        api.get('/users/suggestions')
       ]);
+      
+      setFollowing(followingRes.data?.data || []);
+      setFollowers(followersRes.data?.data || []);
+      setSuggestions(suggestionsRes.data?.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Erreur:', error);
+      setFollowing([]);
+      setFollowers([]);
+      setSuggestions([]);
       setLoading(false);
     }
   };
 
   const handleFollow = async (userId: string) => {
     try {
-      // Simuler l'abonnement
+      const userToFollow = suggestions.find(u => u._id === userId);
+      if (!userToFollow) return;
+      
+      if (userToFollow.isFollowing) {
+        await api.delete(`/users/${userId}/follow`);
+        setFollowing(prev => prev.filter(u => u._id !== userId));
+      } else {
+        await api.post(`/users/${userId}/follow`);
+        setFollowing(prev => [...prev, { ...userToFollow, isFollowing: true }]);
+      }
+      
       setSuggestions(prev => 
         prev.map(user => 
           user._id === userId 
@@ -39,12 +56,6 @@ const Friends = () => {
             : user
         )
       );
-      
-      // Ajouter à la liste des abonnements si on suit
-      const userToFollow = suggestions.find(u => u._id === userId);
-      if (userToFollow && !userToFollow.isFollowing) {
-        setFollowing(prev => [...prev, { ...userToFollow, isFollowing: true }]);
-      }
     } catch (error) {
       console.error('Erreur lors de l\'abonnement:', error);
     }

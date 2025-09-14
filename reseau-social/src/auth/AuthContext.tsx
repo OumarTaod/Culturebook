@@ -48,8 +48,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
           setIsAuthenticated(true);
           setIsLoading(false);
-        } catch (error) {
-          console.error("Session invalide, déconnexion", error);
+        } catch (error: any) {
+          console.error("Erreur de session:", error);
+          
+          // Si le token est expiré, essayer de le rafraîchir
+          if (error.response?.data?.code === 'TOKEN_EXPIRED') {
+            console.log('Token expiré, tentative de rafraîchissement...');
+            const refreshed = await refreshToken();
+            if (refreshed) {
+              setIsLoading(false);
+              return;
+            }
+          }
+          
+          // Sinon, déconnecter l'utilisateur
           localStorage.removeItem('token');
           localStorage.removeItem('userId');
           localStorage.removeItem('userRole');
@@ -104,6 +116,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       return newUser;
     });
+  };
+
+  // Fonction pour rafraîchir le token
+  const refreshToken = async () => {
+    try {
+      const response = await api.post('/auth/refresh-token');
+      const { token, user: updatedUser } = response.data;
+      localStorage.setItem('token', token);
+      setUser(updatedUser);
+      console.log('Token rafraîchi avec succès');
+      return true;
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement du token:', error);
+      logout();
+      return false;
+    }
   };
 
   const value = {

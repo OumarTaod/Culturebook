@@ -26,8 +26,29 @@ const protect = async (req, res, next) => {
 
             next();
         } catch (error) {
-            console.error(error);
-            return res.status(401).json({ success: false, error: 'Non autorisé, le token a échoué' });
+            console.error('Erreur token:', error.message);
+            
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    success: false, 
+                    error: 'Token expiré', 
+                    code: 'TOKEN_EXPIRED'
+                });
+            }
+            
+            if (error.name === 'JsonWebTokenError') {
+                return res.status(401).json({ 
+                    success: false, 
+                    error: 'Token invalide', 
+                    code: 'TOKEN_INVALID'
+                });
+            }
+            
+            return res.status(401).json({ 
+                success: false, 
+                error: 'Non autorisé, le token a échoué',
+                code: 'TOKEN_ERROR'
+            });
         }
     }
 

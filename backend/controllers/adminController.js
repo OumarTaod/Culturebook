@@ -73,13 +73,12 @@ exports.getStats = asyncHandler(async (req, res, next) => {
     User.countDocuments({ banned: { $ne: true } })
   ]);
   
-  // Simuler le nombre de groupes si le modèle n'existe pas
   let totalGroups = 0;
   try {
     const Group = require('../models/Group');
     totalGroups = await Group.countDocuments();
   } catch (error) {
-    totalGroups = 2; // Nombre de groupes de test
+    totalGroups = 0;
   }
   
   res.status(200).json({
@@ -160,26 +159,7 @@ exports.listGroups = asyncHandler(async (req, res, next) => {
     
     res.status(200).json({ success: true, data: groups });
   } catch (error) {
-    // Si le modèle Group n'existe pas, retourner des données de test
-    const testGroups = [
-      {
-        _id: '1',
-        name: 'Groupe de test 1',
-        description: 'Description du groupe de test',
-        privacy: 'public',
-        members: [{name: 'User1'}, {name: 'User2'}],
-        createdAt: new Date()
-      },
-      {
-        _id: '2', 
-        name: 'Groupe privé',
-        description: 'Groupe privé pour les tests',
-        privacy: 'private',
-        members: [{name: 'Admin'}],
-        createdAt: new Date()
-      }
-    ];
-    res.status(200).json({ success: true, data: testGroups });
+    res.status(200).json({ success: true, data: [] });
   }
 });
 
@@ -194,35 +174,19 @@ exports.deleteGroup = asyncHandler(async (req, res, next) => {
 
 // GET /api/admin/reports
 exports.listReports = asyncHandler(async (req, res, next) => {
-  // Simuler des signalements pour l'exemple
-  const reports = [
-    {
-      _id: '1',
-      type: 'Post inapproprié',
-      reason: 'Contenu offensant',
-      reporter: { name: 'Utilisateur A' },
-      content: 'Contenu du post signalé qui contient des propos inappropriés...',
-      createdAt: new Date()
-    },
-    {
-      _id: '2',
-      type: 'Spam',
-      reason: 'Publication répétitive',
-      reporter: { name: 'Utilisateur B' },
-      content: 'Message de spam répété plusieurs fois...',
-      createdAt: new Date(Date.now() - 86400000) // Hier
-    },
-    {
-      _id: '3',
-      type: 'Harcèlement',
-      reason: 'Commentaires déplacés',
-      reporter: { name: 'Utilisateur C' },
-      content: 'Commentaires de harcèlement envers un autre utilisateur...',
-      createdAt: new Date(Date.now() - 172800000) // Il y a 2 jours
-    }
-  ];
-  
-  res.status(200).json({ success: true, data: reports });
+  try {
+    const Report = require('../models/Report');
+    const reports = await Report.find()
+      .populate('reporter', 'name')
+      .populate('reportedUser', 'name')
+      .populate('reportedPost')
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    res.status(200).json({ success: true, data: reports });
+  } catch (error) {
+    res.status(200).json({ success: true, data: [] });
+  }
 });
 
 // PATCH /api/admin/reports/:id
