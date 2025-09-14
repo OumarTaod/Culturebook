@@ -78,6 +78,13 @@ const Profile = () => {
   const [cover, setCover] = useState<File | null>(null); // Fichier couverture sélectionné
   const [uploading, setUploading] = useState(false); // État d'upload des fichiers
   
+  // États pour le changement de mot de passe
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  
   // États pour la messagerie
   const [startingConversation, setStartingConversation] = useState(false); // Démarrage conversation
   
@@ -420,7 +427,7 @@ const Profile = () => {
           ...prev,
           stats: {
             ...prev.stats,
-            followers: newFollowState 
+            followers: newFollowState
               ? (prev.stats?.followers || 0) + 1
               : Math.max((prev.stats?.followers || 0) - 1, 0)
           }
@@ -431,6 +438,55 @@ const Profile = () => {
       setError('Erreur lors de la mise à jour du suivi');
     } finally {
       setFollowLoading(false);
+    }
+  };
+
+  // Gestionnaire pour changer le mot de passe
+  const handlePasswordChange = async () => {
+    setError(''); // Réinitialiser les erreurs
+    
+    if (!currentPassword.trim()) {
+      setError('Veuillez saisir votre mot de passe actuel');
+      return;
+    } 
+    if (!newPassword.trim()) {
+      setError('Veuillez saisir un nouveau mot de passe');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setError('Le nouveau mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const response = await api.patch(`/users/change-password`, {
+        currentPassword: currentPassword.trim(),
+        newPassword: newPassword.trim()
+      });
+      
+      // Succès
+      setShowPasswordForm(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setError('');
+      
+      // Message de succès temporaire
+      const successMsg = 'Mot de passe changé avec succès';
+      setError('');
+      setTimeout(() => setError(''), 3000);
+      
+    } catch (err: any) {
+      console.error('Erreur changement mot de passe:', err);
+      const errorMsg = err.response?.data?.message || err.message || 'Erreur lors du changement de mot de passe';
+      setError(errorMsg);
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -490,14 +546,22 @@ const Profile = () => {
           
           {/* Boutons d'action selon le type de profil */}
           {isOwnProfile ? (
-            // Bouton édition pour son propre profil
-            <button
-              onClick={() => (isEditing ? handleProfileUpdate() : setIsEditing(true))}
-              className="edit-button"
-              disabled={uploading}
-            >
-              {isEditing ? 'Enregistrer' : 'Modifier le profil'}
-            </button>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => (isEditing ? handleProfileUpdate() : setIsEditing(true))}
+                className="edit-button"
+                disabled={uploading}
+              >
+                {isEditing ? 'Enregistrer' : 'Modifier le profil'}
+              </button>
+              <button
+                onClick={() => setShowPasswordForm(!showPasswordForm)}
+                className="edit-button"
+                style={{ background: '#6b7280' }}
+              >
+                Changer mot de passe
+              </button>
+            </div>
           ) : (
             // Boutons pour les autres profils
             <div className="profile-actions">
@@ -535,6 +599,89 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      
+      {/* Formulaire de changement de mot de passe */}
+      {showPasswordForm && isOwnProfile && (
+        <div className="password-form" style={{
+          background: 'var(--color-surface)',
+          padding: '24px',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border)',
+          marginBottom: '24px'
+        }}>
+          <h3>Changer le mot de passe</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <input
+              type="password"
+              placeholder="Mot de passe actuel"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              style={{
+                padding: '12px',
+                border: '1px solid var(--color-border)',
+                borderRadius: '6px'
+              }}
+            />
+            <input
+              type="password"
+              placeholder="Nouveau mot de passe"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              style={{
+                padding: '12px',
+                border: '1px solid var(--color-border)',
+                borderRadius: '6px'
+              }}
+            />
+            <input
+              type="password"
+              placeholder="Confirmer le nouveau mot de passe"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={{
+                padding: '12px',
+                border: '1px solid var(--color-border)',
+                borderRadius: '6px'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={handlePasswordChange}
+                disabled={passwordLoading || !currentPassword || !newPassword || !confirmPassword}
+                style={{
+                  padding: '12px 24px',
+                  background: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                {passwordLoading ? 'Changement...' : 'Changer'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowPasswordForm(false);
+                  setCurrentPassword('');
+                  setNewPassword('');
+                  setConfirmPassword('');
+                  setError('');
+                }}
+                style={{
+                  padding: '12px 24px',
+                  background: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Modal des abonnements */}
       {showFollowing && (

@@ -30,7 +30,7 @@
  */
 
 const express = require('express');
-const { getUserById, getUserPosts, updateUser, getSuggestions, followUser, unfollowUser, listUsers, getUserFollowing, getUserFollowers } = require('../controllers/userController');
+const { getUserById, getUserPosts, updateUser, changePassword, getSuggestions, followUser, unfollowUser, listUsers, getUserFollowing, getUserFollowers } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -39,25 +39,31 @@ const router = express.Router();
 // ========== ROUTES GÉNÉRALES ==========
 router.get('/', listUsers);                    // Liste tous les utilisateurs
 router.get('/suggestions', protect, getSuggestions); // Suggestions (auth requise)
+router.patch('/change-password', protect, changePassword); // Changement mot de passe
 
 // ========== ACTIONS D'ABONNEMENT ==========
 router.get('/:id/is-following', protect, (req, res) => {
-  // Vérifier si l'utilisateur connecté suit l'utilisateur ciblé
-  const isFollowing = req.user.following?.some(id => id.toString() === req.params.id) || false;
-  res.json({ isFollowing });
+  try {
+    if (!req.user || !req.params.id) {
+      return res.status(400).json({ error: 'Données manquantes' });
+    }
+    const isFollowing = req.user.following?.some(id => id.toString() === req.params.id) || false;
+    res.json({ isFollowing });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 router.post('/:id/follow', protect, followUser);    // Suivre un utilisateur
 router.delete('/:id/follow', protect, unfollowUser); // Ne plus suivre
+
+// ========== MODIFICATION PROFIL ==========
+router.patch('/:id', protect, upload.fields([{ name: 'avatar' }, { name: 'cover' }]), updateUser);
 
 // ========== INFORMATIONS UTILISATEUR ==========
 router.get('/:id', getUserById);               // Profil utilisateur
 router.get('/:id/posts', getUserPosts);        // Publications (FILTRÉES par utilisateur) ⭐
 router.get('/:id/following', getUserFollowing); // Liste des abonnements
 router.get('/:id/followers', getUserFollowers); // Liste des abonnés
-
-// ========== MODIFICATION PROFIL ==========
-// Upload multipart pour avatar et couverture
-router.patch('/:id', protect, upload.fields([{ name: 'avatar' }, { name: 'cover' }]), updateUser);
 
 module.exports = router;
 

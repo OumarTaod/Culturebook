@@ -38,7 +38,12 @@ const Messages = () => {
   const [error, setError] = useState('');
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [showConversationList, setShowConversationList] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [typingUsers, setTypingUsers] = useState<{[key: string]: string}>({});
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
@@ -76,14 +81,17 @@ const Messages = () => {
   }, []);
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    
     fetchConversations();
     socketService.connect();
 
     const unsubscribe = socketService.onMessage(async (message: Message) => {
-      // Mettre à jour la liste des conversations (remonter celle impactée)
+      // Mettre à jour la liste des conversations
       setConversations((prev) => {
         const idx = prev.findIndex((c) => c._id === message.conversation);
-        if (idx === -1) return prev; // Inconnu => laisser tel quel
+        if (idx === -1) return prev;
         const copy = [...prev];
         const conv = { ...copy[idx] };
         conv.lastMessage = { content: message.content, createdAt: message.createdAt };
@@ -91,17 +99,32 @@ const Messages = () => {
         return [conv, ...copy];
       });
 
-      // Si on regarde cette conversation, ajouter le message directement
+      // Ajouter le message immédiatement
       if (selectedConversationRef.current === message.conversation) {
         setMessages(prev => {
-          // Supprimer les messages temporaires et ajouter le nouveau
           const withoutTemp = prev.filter(m => !m._id.startsWith('temp-'));
           const exists = withoutTemp.some(m => m._id === message._id);
           if (exists) return prev;
           return [...withoutTemp, message];
         });
-        messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+          messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
       }
+    });
+
+    const unsubscribeTyping = socketService.onTyping((data) => {
+      if (selectedConversationRef.current) {
+        setTypingUsers(prev => ({ ...prev, [data.userId]: data.name }));
+      }
+    });
+
+    const unsubscribeStopTyping = socketService.onStopTyping((data) => {
+      setTypingUsers(prev => {
+        const newState = { ...prev };
+        delete newState[data.userId];
+        return newState;
+      });
     });
 
     const onlineUsersUnsubscribe = socketService.onOnlineUsers((users) => {
@@ -109,9 +132,11 @@ const Messages = () => {
     });
 
     return () => {
+      window.removeEventListener('resize', handleResize);
       unsubscribe();
+      unsubscribeTyping();
+      unsubscribeStopTyping();
       onlineUsersUnsubscribe();
-      // Ne pas déconnecter le socket complètement, juste nettoyer les handlers
     };
   }, [fetchConversations, fetchMessages]);
 
@@ -194,11 +219,36 @@ const Messages = () => {
     );
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewMessage(value);
+
+    if (selectedConversation && value.trim()) {
+      if (!isTyping) {
+        setIsTyping(true);
+        socketService.startTyping(selectedConversation);
+      }
+      
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+        socketService.stopTyping(selectedConversation);
+      }, 1000);
+    } else if (isTyping) {
+      setIsTyping(false);
+      if (selectedConversation) {
+        socketService.stopTyping(selectedConversation);
+      }
+    }
+  };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedConversation || !newMessage.trim()) return;
 
-    // Trouver l'autre participant pour déterminer le receiverId
     const conv = conversations.find((c) => c._id === selectedConversation);
     const other = conv?.participants.find((p) => p._id !== user?._id);
     const receiverId = other?._id;
@@ -206,7 +256,6 @@ const Messages = () => {
 
     const messageContent = newMessage.trim();
     
-    // Créer un message temporaire pour l'affichage immédiat
     const tempMessage: Message = {
       _id: `temp-${Date.now()}`,
       conversation: selectedConversation,
@@ -218,14 +267,17 @@ const Messages = () => {
       createdAt: new Date().toISOString()
     };
 
-    // Ajouter immédiatement le message à l'affichage
     setMessages(prev => [...prev, tempMessage]);
     setNewMessage('');
+    
+    if (isTyping) {
+      setIsTyping(false);
+      socketService.stopTyping(selectedConversation);
+    }
 
     try {
       socketService.sendMessage(receiverId, messageContent);
     } catch (err) {
-      // En cas d'erreur, retirer le message temporaire
       setMessages(prev => prev.filter(m => m._id !== tempMessage._id));
       setError("Erreur lors de l'envoi du message");
       console.error(err);
@@ -257,9 +309,14 @@ const Messages = () => {
     getOtherParticipant(conv).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleBackToConversations = () => {
+    setSelectedConversation(null);
+    setShowConversationList(true);
+  };
+
   return (
     <div className="messages-container">
-      <div className="conversations-list">
+      <div className={`conversations-list ${isMobile && !showConversationList ? 'hidden' : ''}`}>
         <div className="conversations-header">
           <h2>Messages</h2>
           <button className="new-chat-btn">✏️</button>
@@ -277,7 +334,10 @@ const Messages = () => {
           <div
             key={conversation._id}
             className={`conversation-item ${selectedConversation === conversation._id ? 'selected' : ''}`}
-            onClick={() => setSelectedConversation(conversation._id)}
+            onClick={() => {
+              setSelectedConversation(conversation._id);
+              if (isMobile) setShowConversationList(false);
+            }}
           >
             <div className="conversation-avatar">
               {getOtherParticipant(conversation)[0]?.toUpperCase()}
@@ -300,10 +360,13 @@ const Messages = () => {
         ))}
       </div>
 
-      <div className="messages-content">
+      <div className={`messages-content ${isMobile && showConversationList ? 'hidden' : ''}`}>
         {selectedConversation ? (
           <>
             <div className="chat-header">
+              {isMobile && (
+                <button className="back-btn" onClick={handleBackToConversations}>←</button>
+              )}
               <div className="chat-user-info">
                 <div className="chat-avatar">
                   {conversations.find(c => c._id === selectedConversation) && 
@@ -429,6 +492,7 @@ const Messages = () => {
                           style={{
                             display: 'inline-block',
                             maxWidth: '70%',
+                            minWidth: 'fit-content',
                             padding: '12px 16px',
                             borderRadius: '18px 18px 6px 18px',
                             background: selectedMessages.includes(message._id)
@@ -436,7 +500,8 @@ const Messages = () => {
                               : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                             color: 'white',
                             fontSize: '15px',
-                            wordWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            whiteSpace: 'pre-wrap',
                             cursor: 'pointer',
                             transition: 'all 0.2s ease',
                             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -470,13 +535,15 @@ const Messages = () => {
                       <div style={{
                         display: 'inline-block',
                         maxWidth: '70%',
+                        minWidth: 'fit-content',
                         padding: '12px 16px',
                         borderRadius: '18px 18px 18px 6px',
                         background: 'rgba(255, 255, 255, 0.9)',
                         color: '#1e293b',
                         border: '1px solid #e2e8f0',
                         fontSize: '15px',
-                        wordWrap: 'break-word',
+                        wordBreak: 'break-word',
+                        whiteSpace: 'pre-wrap',
                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                         backdropFilter: 'blur(10px)'
                       }}>
@@ -494,6 +561,18 @@ const Messages = () => {
                   );
                 }
               })}
+              
+              {Object.keys(typingUsers).length > 0 && (
+                <div className="typing-indicator">
+                  <div className="typing-dots">
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                  </div>
+                  <span>{Object.values(typingUsers)[0]} est en train d'écrire...</span>
+                </div>
+              )}
+              
               <div ref={messageEndRef} />
             </div>
 
@@ -503,7 +582,7 @@ const Messages = () => {
                 ref={inputRef}
                 type="text"
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={handleInputChange}
                 placeholder="Tapez un message..."
                 className="message-input"
               />

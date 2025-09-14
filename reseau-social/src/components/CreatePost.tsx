@@ -4,13 +4,15 @@ import { useAuth } from '../auth/AuthContext';
 import './CreatePost.css';
 
 interface CreatePostProps {
-  onPostSubmit: (content: string, type: 'Proverbe' | 'Conte' | 'Histoire', mediaFile?: File) => Promise<void>;
+  onPostSubmit: (content: string, type: 'Proverbe' | 'Conte' | 'Histoire', mediaFile?: File, language?: string, region?: string) => Promise<void>;
 }
 
 const CreatePost = ({ onPostSubmit }: CreatePostProps) => {
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [type, setType] = useState<'Proverbe' | 'Conte' | 'Histoire'>('Proverbe');
+  const [language, setLanguage] = useState('Français');
+  const [region, setRegion] = useState('Conakry');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -24,9 +26,11 @@ const CreatePost = ({ onPostSubmit }: CreatePostProps) => {
     setError('');
 
     try {
-      await onPostSubmit(content, type, mediaFile || undefined);
+      await onPostSubmit(content, type, mediaFile || undefined, language, region);
       setContent('');
       setType('Proverbe');
+      setLanguage('Français');
+      setRegion('Conakry');
       setMediaFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -62,12 +66,35 @@ const CreatePost = ({ onPostSubmit }: CreatePostProps) => {
           rows={4}
           disabled={isSubmitting}
         />
-        <div className="create-post-footer">
+        <div className="create-post-options">
           <select value={type} onChange={(e) => setType(e.target.value as any)} disabled={isSubmitting}>
             <option value="Proverbe">Proverbe</option>
             <option value="Conte">Conte</option>
             <option value="Histoire">Histoire</option>
           </select>
+          
+          <select value={language} onChange={(e) => setLanguage(e.target.value)} disabled={isSubmitting}>
+            <option value="Français">Français</option>
+            <option value="Soussou">Soussou</option>
+            <option value="Peul">Peul</option>
+            <option value="Malinké">Malinké</option>
+            <option value="Kissi">Kissi</option>
+            <option value="Toma">Toma</option>
+          </select>
+          
+          <select value={region} onChange={(e) => setRegion(e.target.value)} disabled={isSubmitting}>
+            <option value="Conakry">Conakry</option>
+            <option value="Kindia">Kindia</option>
+            <option value="Boké">Boké</option>
+            <option value="Labé">Labé</option>
+            <option value="Mamou">Mamou</option>
+            <option value="Faranah">Faranah</option>
+            <option value="Kankan">Kankan</option>
+            <option value="Nzérékoré">Nzérékoré</option>
+          </select>
+        </div>
+        
+        <div className="create-post-footer">
           <input
             type="file"
             ref={fileInputRef}

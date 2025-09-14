@@ -46,6 +46,10 @@ const Post = ({ post, onDelete }: PostProps) => {
   const [loadingComments, setLoadingComments] = useState(false);
   const [likePending, setLikePending] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(post.textContent || '');
+  const [editLanguage, setEditLanguage] = useState(post.language || 'Français');
+  const [editRegion, setEditRegion] = useState(post.region || 'Conakry');
   const menuRef = useRef<HTMLDivElement>(null);
 
   const authorId = post.author?._id || 'anon';
@@ -135,6 +139,20 @@ const Post = ({ post, onDelete }: PostProps) => {
     }
   };
 
+  const handleSaveEdit = () => {
+    post.textContent = editContent;
+    post.language = editLanguage;
+    post.region = editRegion;
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(post.textContent || '');
+    setEditLanguage(post.language || 'Français');
+    setEditRegion(post.region || 'Conakry');
+    setIsEditing(false);
+  };
+
   const isOwnPost = user && post.author?._id === user._id;
 
   const renderMedia = () => {
@@ -187,6 +205,12 @@ const Post = ({ post, onDelete }: PostProps) => {
             </button>
             {showMenu && (
               <div className="post-menu">
+                <button onClick={() => {
+                  setIsEditing(true);
+                  setShowMenu(false);
+                }} className="post-menu-item edit">
+                  ✏️ Modifier
+                </button>
                 <button onClick={handleDeletePost} className="post-menu-item delete">
                   🗑️ Supprimer
                 </button>
@@ -196,7 +220,47 @@ const Post = ({ post, onDelete }: PostProps) => {
         )}
       </div>
       <div className="post-content">
-        <p>{post.textContent || (post as any).content || ''}</p>
+        {isEditing ? (
+          <div className="edit-form">
+            <textarea 
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="edit-textarea"
+              rows={4}
+            />
+
+            <div className="edit-selects">
+              <select value={editLanguage} onChange={(e) => setEditLanguage(e.target.value)}>
+                <option value="Français">Français</option>
+                <option value="Soussou">Soussou</option>
+                <option value="Peul">Peul</option>
+                <option value="Malinké">Malinké</option>
+                <option value="Kissi">Kissi</option>
+                <option value="Toma">Toma</option>
+              </select>
+              <select value={editRegion} onChange={(e) => setEditRegion(e.target.value)}>
+                <option value="Conakry">Conakry</option>
+                <option value="Kindia">Kindia</option>
+                <option value="Boké">Boké</option>
+                <option value="Labé">Labé</option>
+                <option value="Mamou">Mamou</option>
+                <option value="Faranah">Faranah</option>
+                <option value="Kankan">Kankan</option>
+                <option value="Nzérékoré">Nzérékoré</option>
+              </select>
+            </div>
+            <div className="edit-actions">
+              <button onClick={handleSaveEdit} className="save-btn">
+                ✓ Enregistrer
+              </button>
+              <button onClick={handleCancelEdit} className="cancel-btn">
+                ✕ Annuler
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p>{post.textContent || (post as any).content || ''}</p>
+        )}
         {renderMedia()}
       </div>
       <div className="post-footer">

@@ -7,15 +7,19 @@ const ErrorResponse = require('../utils/errorResponse');
 /**
  * @desc    Récupérer tous les posts (avec pagination)
  * @route   GET /api/posts
- * @access  Public
+ * @access  Private
  */
 exports.getPosts = asyncHandler(async (req, res, next) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = Math.min(parseInt(req.query.limit, 10) || 10, 50);
     const skip = (page - 1) * limit;
 
-    const total = await Post.countDocuments();
-    const posts = await Post.find()
+    // Récupérer les IDs des personnes suivies + ses propres posts
+    const followingIds = req.user.following || [];
+    const authorIds = [...followingIds, req.user._id];
+
+    const total = await Post.countDocuments({ author: { $in: authorIds } });
+    const posts = await Post.find({ author: { $in: authorIds } })
         .populate('author', 'name avatarUrl')
         .sort({ createdAt: -1 })
         .skip(skip)

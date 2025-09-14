@@ -141,6 +141,34 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: user });
 });
 
+// PATCH /api/users/change-password
+exports.changePassword = asyncHandler(async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  
+  if (!currentPassword || !newPassword) {
+    return next(new ErrorResponse('Mot de passe actuel et nouveau mot de passe requis', 400));
+  }
+  
+  if (newPassword.length < 6) {
+    return next(new ErrorResponse('Le nouveau mot de passe doit contenir au moins 6 caractères', 400));
+  }
+
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user) {
+    return next(new ErrorResponse('Utilisateur non trouvé', 404));
+  }
+  
+  const isMatch = await user.matchPassword(currentPassword);
+  if (!isMatch) {
+    return next(new ErrorResponse('Mot de passe actuel incorrect', 400));
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(200).json({ success: true, message: 'Mot de passe modifié avec succès' });
+});
+
 // PATCH /api/users/:id/role (superadmin only) - kept in admin controller instead
 
 // GET /api/users/suggestions

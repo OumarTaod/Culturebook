@@ -223,9 +223,9 @@ const Home = () => {
           <h3 data-icon="activity">Activité récente</h3>
           <div className="activity-feed">
             <div className="activity-item">
-              <div className="activity-avatar">M</div>
+              <div className="activity-avatar">O</div>
               <div className="activity-content">
-                <span className="activity-text">Marie a publié un nouveau conte</span>
+                <span className="activity-text">Oumar a publié un nouveau conte</span>
                 <span className="activity-time">Il y a 2h</span>
               </div>
             </div>

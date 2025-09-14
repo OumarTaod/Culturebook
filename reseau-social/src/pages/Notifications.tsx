@@ -37,7 +37,17 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [modalNotif, setModalNotif] = useState<Notification | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [hiddenNotifications, setHiddenNotifications] = useState<string[]>([]);
+
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api') as string;
+  const API_ORIGIN = API_BASE.replace(/\/?api\/?$/, '');
+  
+  const toAbsolute = (url?: string | null) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${API_ORIGIN}${url}`;
+  };
 
   const hasUnread = useMemo(() => notifications.some(n => !n.read), [notifications]);
 
@@ -111,39 +121,37 @@ const Notifications = () => {
   }, [notifications]);
 
   const handleNotificationClick = useCallback(async (notification: Notification) => {
-    const previousNotifications = [...notifications];
     try {
-      // Marquer la notification individuelle comme lue
+      // Marquer comme lu
       if (!notification.read) {
-        // Mise à jour optimiste
         setNotifications(prev => prev.map(n =>
           n._id === notification._id ? { ...n, read: true } : n
         ));
         await api.patch(`/notifications/${notification._id}/read`);
       }
 
-      // Ouvrir une modale d'aperçu si c'est un like/commentaire lié à un post
+      // Navigation vers la page d'accueil pour voir la publication
       if (notification.post) {
-        setModalNotif(notification);
+        navigate('/', { state: { scrollToPost: notification.post._id } });
       } else if (notification.type === NOTIFICATION_TYPES.FOLLOW) {
         navigate(`/profile/${notification.sender._id}`);
       }
     } catch (err) {
-      setError('Erreur lors de la mise à jour de la notification');
-      // Retour à l'état précédent en cas d'échec
-      setNotifications(previousNotifications);
+      setError('Erreur lors de la navigation');
       console.error(err);
     }
-  }, [navigate, notifications]);
+  }, [navigate]);
 
-  const closeModal = () => setModalNotif(null);
-  const openPost = () => {
-    if (modalNotif?.post?._id) {
-      const pid = modalNotif.post._id;
-      setModalNotif(null);
-      navigate(`/post/${pid}`);
-    }
-  };
+  const deleteNotification = useCallback((notificationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setHiddenNotifications(prev => [...prev, notificationId]);
+  }, []);
+
+  const clearAllNotifications = useCallback(() => {
+    if (!confirm('Masquer toutes les notifications ?')) return;
+    const allIds = notifications.map(n => n._id);
+    setHiddenNotifications(prev => [...prev, ...allIds]);
+  }, [notifications]);
 
   const getNotificationText = (notification: Notification) => {
     switch (notification.type) {
@@ -210,50 +218,78 @@ const Notifications = () => {
     <div className="notifications-container">
       <div className="notifications-header">
         <h2>Notifications</h2>
-        {hasUnread && (
-          <button onClick={markAsRead} className="mark-read-button">
-            Marquer tout comme lu
-          </button>
-        )}
+        <div className="header-actions">
+          {hasUnread && (
+            <button onClick={markAsRead} className="mark-read-button">
+              ✓ Tout lire
+            </button>
+          )}
+          {notifications.filter(n => !hiddenNotifications.includes(n._id)).length > 0 && (
+            <button onClick={clearAllNotifications} className="clear-all-button">
+              👁️ Tout masquer
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="notifications-list">
-        {notifications.length > 0 ? (
-          notifications.map(notification => (
-            <button
+        {notifications.filter(n => !hiddenNotifications.includes(n._id)).length > 0 ? (
+          notifications.filter(n => !hiddenNotifications.includes(n._id)).map(notification => (
+            <div
               key={notification._id}
               className={`notification-item ${!notification.read ? 'unread' : ''}`}
               onClick={() => handleNotificationClick(notification)}
-              aria-label={`Notification de ${notification.sender.name}: ${getNotificationText(notification)}`}
             >
               <div className="notification-icon">
-                {notification.sender?.avatarUrl ? (
-                  <img src={notification.sender.avatarUrl} alt={notification.sender.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                {notification.sender?.avatarUrl || notification.sender?.profilePicture ? (
+                  <img 
+                    src={toAbsolute(notification.sender.avatarUrl || notification.sender.profilePicture)} 
+                    alt={notification.sender.name} 
+                  />
                 ) : (
-                  getNotificationIcon(notification.type)
+                  <span className="icon-emoji">{getNotificationIcon(notification.type)}</span>
                 )}
               </div>
+              
               <div className="notification-content">
-                <p className="notification-text">
-                  {getNotificationText(notification)}
-                </p>
+                <div className="notification-main">
+                  <p className="notification-text">
+                    <strong>{notification.sender.name}</strong>
+                    <span className="action-text">
+                      {notification.type === 'like' && ' a aimé votre publication'}
+                      {notification.type === 'comment' && ' a commenté votre publication'}
+                      {notification.type === 'follow' && ' a commencé à vous suivre'}
+                    </span>
+                  </p>
+                  <span className="notification-time">
+                    {formatDate(notification.createdAt)}
+                  </span>
+                </div>
+                
                 {notification.post && (
-                  <div className="notification-preview-wrap">
-                    {notification.post.imageUrl && (
-                      <img src={notification.post.imageUrl} alt="aperçu" className="notification-thumb" />
+                  <div className="post-preview">
+                    {(notification.post.imageUrl || notification.post.mediaUrl) && (
+                      <img 
+                        src={toAbsolute(notification.post.imageUrl || notification.post.mediaUrl)} 
+                        alt="aperçu" 
+                        className="preview-image" 
+                      />
                     )}
-                    <p className="notification-preview">
-                      {notification.post.textContent.length > 100
-                        ? `${notification.post.textContent.substring(0, 100)}...`
-                        : notification.post.textContent}
+                    <p className="preview-text">
+                      {notification.post.textContent?.substring(0, 80)}{notification.post.textContent && '...'}
                     </p>
                   </div>
                 )}
-                <span className="notification-time">
-                  {formatDate(notification.createdAt)}
-                </span>
               </div>
-            </button>
+              
+              <button
+                className={`delete-btn ${deleting === notification._id ? 'deleting' : ''}`}
+                onClick={(e) => deleteNotification(notification._id, e)}
+                disabled={deleting === notification._id}
+              >
+                {deleting === notification._id ? '⏳' : '✕'}
+              </button>
+            </div>
           ))
         ) : (
           <div className="no-notifications">
@@ -262,31 +298,10 @@ const Notifications = () => {
         )}
       </div>
 
-      {error && <div className="error-message">{error}</div>}
-
-      {modalNotif && (
-        <div className="notif-modal-overlay" onClick={closeModal}>
-          <div className="notif-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="notif-modal-header">
-              <h3>{getNotificationText(modalNotif)}</h3>
-              <button className="notif-modal-close" onClick={closeModal}>✕</button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {modalNotif.sender?.avatarUrl && (
-                <img src={modalNotif.sender.avatarUrl} alt={modalNotif.sender.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
-              )}
-              <strong>{modalNotif.sender?.name}</strong>
-            </div>
-            {modalNotif.post?.imageUrl && (
-              <img src={modalNotif.post.imageUrl} alt="aperçu" className="notif-modal-image" />
-            )}
-            {modalNotif.post?.textContent && (
-              <p className="notif-modal-text">{modalNotif.post.textContent}</p>
-            )}
-            <div className="notif-modal-actions">
-              <button onClick={openPost} className="open-post-btn">Ouvrir la publication</button>
-            </div>
-          </div>
+      {error && (
+        <div className="error-toast">
+          {error}
+          <button onClick={() => setError('')}>✕</button>
         </div>
       )}
     </div>

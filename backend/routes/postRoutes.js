@@ -13,7 +13,7 @@ const upload = require('../middleware/uploadMiddleware');
 const router = express.Router();
 
 router.route('/')
-    .get(getPosts)
+    .get(protect, getPosts)
     .post(protect, upload.single('media'), creerPost);
 
 router.route('/:id/vote')
