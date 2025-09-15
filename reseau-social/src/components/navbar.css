@@ -66,11 +66,32 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: 'Georgia', serif;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
 }
 
 .brand-letter {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: 900;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  display: inline-block;
+  transform: scale(1.1);
+  position: relative;
+}
+
+.brand-letter:first-child {
+  transform: scaleX(2.5) scale(1.1);
+  margin-right: 8px;
+}
+
+.brand-letter:last-child {
+  margin-left: -4px;
 }
 
 .navbar-brand:hover {
