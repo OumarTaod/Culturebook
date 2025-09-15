@@ -8,7 +8,7 @@ const PostSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['Conte', 'Proverbe', 'Histoire'],
+        enum: ['Conte', 'Proverbe', 'Histoire', 'Poème'],
         required: [true, 'Veuillez spécifier le type de publication']
     },
     language: {

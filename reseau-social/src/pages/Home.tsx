@@ -155,7 +155,7 @@ const Home = () => {
     return () => { observer.disconnect(); };
   }, [page, hasMore, isLoadingMore, fetchPosts]);
 
-  const handleCreatePost = async (content: string, type: 'Proverbe' | 'Conte' | 'Histoire', mediaFile?: File, language?: string, region?: string) => {
+  const handleCreatePost = async (content: string, type: 'Proverbe' | 'Conte' | 'Histoire' | 'Poème', mediaFile?: File, language?: string, region?: string) => {
     try {
       const formData = new FormData();
       formData.append('textContent', content);

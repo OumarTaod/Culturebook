@@ -4,13 +4,13 @@ import { useAuth } from '../auth/AuthContext';
 import './CreatePost.css';
 
 interface CreatePostProps {
-  onPostSubmit: (content: string, type: 'Proverbe' | 'Conte' | 'Histoire', mediaFile?: File, language?: string, region?: string) => Promise<void>;
+  onPostSubmit: (content: string, type: 'Proverbe' | 'Conte' | 'Histoire' | 'Poème', mediaFile?: File, language?: string, region?: string) => Promise<void>;
 }
 
 const CreatePost = ({ onPostSubmit }: CreatePostProps) => {
   const { user } = useAuth();
   const [content, setContent] = useState('');
-  const [type, setType] = useState<'Proverbe' | 'Conte' | 'Histoire'>('Proverbe');
+  const [type, setType] = useState<'Proverbe' | 'Conte' | 'Histoire' | 'Poème'>('Proverbe');
   const [language, setLanguage] = useState('Français');
   const [region, setRegion] = useState('Conakry');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,6 +71,7 @@ const CreatePost = ({ onPostSubmit }: CreatePostProps) => {
             <option value="Proverbe">Proverbe</option>
             <option value="Conte">Conte</option>
             <option value="Histoire">Histoire</option>
+            <option value="Poème">Poème</option>
           </select>
           
           <select value={language} onChange={(e) => setLanguage(e.target.value)} disabled={isSubmitting}>
