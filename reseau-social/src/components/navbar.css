@@ -68,6 +68,11 @@ body {
   background-clip: text;
 }
 
+.brand-letter {
+  font-size: 1.3em;
+  font-weight: 900;
+}
+
 .navbar-brand:hover {
   transform: scale(1.05);
 }

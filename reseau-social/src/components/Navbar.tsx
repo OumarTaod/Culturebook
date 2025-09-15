@@ -191,8 +191,8 @@ const Navbar = () => {
     <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
       <div className="nav-left">
         <Link to="/" className="navbar-brand" aria-label="Accueil CultureBook">
-          <span className="brand-icon">🌍</span>
-          <span className="brand-text">CultureBook</span>
+          <span className="brand-icon"></span>
+          <span className="brand-text"><span className="brand-letter">C</span>ulture<span className="brand-letter">B</span>ook</span>
         </Link>
       </div>
 

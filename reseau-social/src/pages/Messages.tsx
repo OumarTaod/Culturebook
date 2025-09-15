@@ -151,6 +151,10 @@ const Messages = () => {
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages(selectedConversation);
+      // Focus automatique sur l'input quand on entre dans une conversation
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     }
   }, [selectedConversation, fetchMessages]);
 
@@ -576,21 +580,24 @@ const Messages = () => {
               <div ref={messageEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="message-input-container">
-              <button type="button" className="attachment-btn">📎</button>
-              <input
-                ref={inputRef}
-                type="text"
-                value={newMessage}
-                onChange={handleInputChange}
-                placeholder="Tapez un message..."
-                className="message-input"
-              />
-              <button type="button" className="emoji-btn">😊</button>
-              <button type="submit" className="send-button" disabled={!newMessage.trim()}>
-                {newMessage.trim() ? '➤' : '🎤'}
-              </button>
-            </form>
+            {selectedConversation && (
+              <form onSubmit={handleSendMessage} className="message-input-container">
+                <button type="button" className="attachment-btn">📎</button>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={newMessage}
+                  onChange={handleInputChange}
+                  placeholder="Tapez un message..."
+                  className="message-input"
+                  autoFocus
+                />
+                <button type="button" className="emoji-btn">😊</button>
+                <button type="submit" className="send-button" disabled={!newMessage.trim()}>
+                  {newMessage.trim() ? '➤' : '🎤'}
+                </button>
+              </form>
+            )}
           </>
         ) : (
           <div className="no-conversation-selected">Sélectionnez une conversation pour commencer à discuter</div>
