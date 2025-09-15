@@ -36,21 +36,27 @@ const Navbar = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
+
   // Hook pour récupérer la route actuelle
   const location = useLocation();
   // Référence pour détecter les clics en dehors du menu utilisateur
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Effect pour gérer l'effet de scroll sur la navbar
+  // Effect pour gérer l'effet de scroll
   useEffect(() => {
     // Fonction pour détecter le scroll et appliquer la classe 'scrolled'
     const onScroll = () => setScrolled(window.scrollY > 0);
-    // Vérification initiale du scroll
+    
+    // Vérification initiale
     onScroll();
-    // Ajout de l'écouteur d'événement scroll avec option passive pour les performances
+    
+    // Ajout de l'écouteur d'événement avec option passive pour les performances
     window.addEventListener('scroll', onScroll, { passive: true });
+    
     // Nettoyage de l'écouteur lors du démontage du composant
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   // Fonction pour déterminer les classes CSS des liens de navigation selon leur état actif
@@ -181,6 +187,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
       <div className="nav-left">
         <Link to="/" className="navbar-brand" aria-label="Accueil CultureBook">
@@ -270,7 +277,7 @@ const Navbar = () => {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-1c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v1h2v-1c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v1h2v-1c0-2.21-1.79-4-4-4h-2c-1.1 0-2 .9-2 2 0-1.1-.9-2-2-2H6c-2.21 0-4 1.79-4 4v1h2z"/>
                   </svg>
-                  🧑🤝🧑 Amis
+                  Abonnés/Abonnements
                 </Link>
                 <Link to="/groups" onClick={() => setShowUserMenu(false)}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -288,7 +295,7 @@ const Navbar = () => {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                   </svg>
-                  🛒 Marketplace
+                  🛒 Store
                 </Link>
                 {(user?.role === 'admin' || user?.role === 'superadmin' || localStorage.getItem('userRole') === 'admin' || localStorage.getItem('userRole') === 'superadmin') && (
                   <Link to="/admin" onClick={() => setShowUserMenu(false)}>
@@ -395,6 +402,8 @@ const Navbar = () => {
         </div>
       )}
     </nav>
+
+    </>
   );
 };
 

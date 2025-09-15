@@ -46,7 +46,7 @@ Avant de commencer, assurez-vous d'avoir installé les logiciels suivants sur vo
 
 1.  Clonez le dépôt sur votre machine locale :
     ```bash
-    git clone <url-du-depot>
+    git clone <>
     cd backend
     ```
 
@@ -68,7 +68,7 @@ Avant de commencer, assurez-vous d'avoir installé les logiciels suivants sur vo
     MONGO_URI=mongodb://localhost:27017/culturebook
 
     # Clé secrète pour signer les tokens JWT (choisissez une chaîne de caractères longue et aléatoire)
-    JWT_SECRET=votre_super_cle_secrete_ici
+    JWT_SECRET=Oumar_Taod_Le_Jeune_Programmeur_Le_Futur_Millionnaire_123_Oumarthekin
     ```
 
 **Note importante** : Le fichier `.env` contient des informations sensibles et ne doit **jamais** être versionné avec Git. Le fichier `.gitignore` est déjà configuré pour l'ignorer.

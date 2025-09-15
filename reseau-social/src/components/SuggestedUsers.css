@@ -76,3 +76,95 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Responsive pour SuggestedUsers */
+@media (max-width: 767px) {
+  .suggestions-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .suggestion-item {
+    padding: 16px 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .suggestion-avatar {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 20px;
+  }
+  
+  .suggestion-name {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .suggestion-bio {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 479px) {
+  .suggestions-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .suggestion-item {
+    padding: 14px;
+  }
+  
+  .suggestion-avatar {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 18px;
+  }
+  
+  .suggestion-name {
+    font-size: 15px;
+  }
+  
+  .suggestion-bio {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 319px) {
+  .suggestion-item {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .suggestion-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 16px;
+  }
+  
+  .suggestion-name {
+    font-size: 14px;
+  }
+  
+  .suggestion-bio {
+    font-size: 12px;
+  }
+}

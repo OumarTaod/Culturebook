@@ -111,7 +111,7 @@ app.use(errorHandler);
 server.listen(PORT, () => {
   // Messages de confirmation du démarrage
   console.log(`🚀 Serveur CultureBook démarré sur http://localhost:${PORT}`);
-  console.log(`📁 Dossier uploads: ${uploadsDir}`);
+  // console.log(`📁 Dossier uploads: ${uploadsDir}`);
 });
 
 // Export de l'application pour les tests ou autres utilisations

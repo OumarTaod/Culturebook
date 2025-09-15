@@ -57,7 +57,7 @@ Recyclage/
 - **Rôles** - User, Admin, SuperAdmin avec permissions
 
 ### 📝 Publications
-- **Création de posts** - Texte, images, vidéos
+- **Création de posts** - Texte, images et audio
 - **Interactions** - Likes, commentaires, partages
 - **Sauvegarde** - Système de favoris
 - **Modération** - Signalement et suppression

@@ -65,7 +65,7 @@ const Home = () => {
       const trendsData = Object.entries(postsByType)
         .map(([tag, data]) => ({ tag, count: data.count, posts: data.posts }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 3);
+        .slice(0, window.innerWidth <= 767 ? 2 : 3);
       
       setTrends(trendsData);
     } catch (err) {
@@ -204,15 +204,15 @@ const Home = () => {
   return (
     <div className="home-grid">
       <aside className="home-left">
-        <div className="card">
+        {/* <div className="card">
           <h3 data-icon="navigation">Navigation</h3>
           <ul className="links">
             <li>🧑‍🤝‍🧑 Amis</li>
             <li>👥 Groupes</li>
             <li>💾 Sauvegardés</li>
-            <li>🛒 Marketplace</li>
+            <li>🛒 Store</li>
           </ul>
-        </div>
+        </div> */}
         <div className="card">
           <h3 data-icon="trending">Tendances</h3>
           <div className="trending-topics">
@@ -253,17 +253,17 @@ const Home = () => {
           <div className="hero-content">
             <div className="hero-badge">
               <span className="badge-icon">🌍</span>
-              <span>Plateforme Culturelle #1</span>
+              <span>Plateforme Culturelle </span>
             </div>
             <h1 className="hero-title">
               Votre <span className="gradient-text">héritage culturel</span>
               <br />mérite d'être immortalisé
             </h1>
             <p className="hero-subtitle">
-              Transformez vos souvenirs en légacy numérique. Partagez, découvrez et connectez-vous à travers les cultures du monde entier.
+              Transformez vos souvenirs en légacy numérique. Partagez, découvrez et connectez-vous à travers les cultures des regions de la Guinée.
               <strong> Votre histoire inspire, votre culture unit.</strong>
             </p>
-            <div className="hero-features">
+            {/* <div className="hero-features">
               <div className="feature-item">
                 <span className="feature-icon">✨</span>
                 <span>Création Facile</span>
@@ -276,16 +276,16 @@ const Home = () => {
                 <span className="feature-icon">📱</span>
                 <span>100% Gratuit</span>
               </div>
-            </div>
+            </div> */}
             <div className="hero-actions">
               <button className="hero-cta-primary" onClick={() => {
                 const createPost = document.querySelector('.create-post-container');
-                createPost?.scrollIntoView({ behavior: 'smooth' });
+                createPost?.scrollIntoView({ behavior: 'smooth' }); 
               }}>
                 <span className="cta-icon">✨</span>
                 <div className="cta-content">
-                  <span className="cta-title">Commencer Gratuitement</span>
-                  <span className="cta-subtitle">Créez votre première publication</span>
+                  <span className="cta-title">Commencer l'avanture </span>
+                  <span className="cta-subtitle">Créez des publications</span>
                 </div>
               </button>
               <button className="hero-cta-secondary" onClick={() => {

@@ -420,21 +420,110 @@ body {
 
   .nav-center {
     flex: 1;
-    margin: 0 10px;
+    margin: 0 8px;
     max-width: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .nav-center::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-center-list {
-    justify-content: space-between;
-    gap: 4px;
+    justify-content: space-around;
+    gap: 2px;
     width: 100%;
+    min-width: 250px;
   }
 
   .nav-center-list .nav-link {
-    width: 40px;
-    height: 38px;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .nav-center-list .nav-link svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav-right {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .nav-action {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .nav-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .nav-username {
+    display: none;
+  }
+
+  .user-menu {
+    right: 10px;
+    min-width: 220px;
+  }
+
+  .toast-notice {
+    top: 70px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+}
+
+/* Galaxy A51/71 et similaires (400px - 479px) */
+@media (max-width: 479px) and (min-width: 400px) {
+  .navbar {
+    padding: 8px 12px;
+    height: 56px;
+  }
+
+  .navbar-brand {
+    font-size: 15px;
+    flex-shrink: 0;
+    gap: 2px;
+  }
+
+  .nav-center {
+    flex: 1;
+    margin: 0 8px;
+    max-width: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .nav-center::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-center-list {
+    justify-content: space-around;
+    gap: 2px;
+    width: 100%;
+    min-width: 220px;
+  }
+
+  .nav-center-list .nav-link {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    min-height: 44px;
+    flex-shrink: 0;
   }
 
   .nav-center-list .nav-link svg {
@@ -448,8 +537,8 @@ body {
   }
 
   .nav-action {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     min-height: 44px;
   }
 
@@ -458,80 +547,44 @@ body {
     height: 34px;
     font-size: 13px;
   }
-
-  .nav-username {
-    display: none;
-  }
-
-  .user-menu {
-    right: 10px;
-    min-width: 200px;
-  }
-
-  .toast-notice {
-    top: 70px;
-    right: 12px;
-    left: 12px;
-    width: auto;
-  }
 }
 
-/* Mobile Medium (320px - 479px) */
-@media (max-width: 479px) and (min-width: 320px) {
+/* Mobile Medium (320px - 399px) */
+@media (max-width: 399px) and (min-width: 320px) {
   .navbar {
-    padding: 4px 6px;
+    padding: 6px 8px;
     height: 56px;
   }
 
   .navbar-brand {
-    font-size: 12px;
+    font-size: 14px;
     flex-shrink: 0;
-    gap: 1px;
+    gap: 2px;
   }
   
   .brand-icon {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
 
   .nav-center {
-    flex: 1;
-    margin: 0 4px;
-    max-width: none;
-  }
-
-  .nav-center-list {
-    justify-content: space-between;
-    gap: 1px;
-    width: 100%;
-  }
-
-  .nav-center-list .nav-link {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    min-height: 44px;
-  }
-
-  .nav-center-list .nav-link svg {
-    width: 16px;
-    height: 16px;
+    display: none;
   }
 
   .nav-right {
-    gap: 2px;
+    gap: 4px;
     flex-shrink: 0;
   }
 
   .nav-action {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     min-height: 44px;
   }
 
   .nav-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 11px;
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
   }
 
   .nav-username {
@@ -539,8 +592,8 @@ body {
   }
 
   .user-menu {
-    right: 6px;
-    min-width: 160px;
+    right: 8px;
+    min-width: 180px;
   }
 
   .toast-notice {
@@ -555,8 +608,8 @@ body {
 /* Mobile Small (< 320px) */
 @media (max-width: 319px) {
   .navbar {
-    padding: 4px 8px;
-    height: 52px;
+    padding: 6px 8px;
+    height: 56px;
   }
 
   .navbar-brand {
@@ -568,23 +621,17 @@ body {
     font-size: 1.2rem;
   }
 
-  /* Cacher complètement la navigation centrale */
   .nav-center {
-    display: none !important;
-  }
-  
-  /* Cacher certains éléments sur très petits écrans */
-  .hidden-small {
-    display: none !important;
+    display: none;
   }
 
   .nav-right {
-    gap: 8px;
-    margin-left: auto;
+    gap: 4px;
+    flex-shrink: 0;
   }
   
   .nav-user {
-    gap: 6px;
+    gap: 4px;
     padding: 4px 6px;
     min-height: 44px;
   }
@@ -596,9 +643,9 @@ body {
   }
 
   .nav-avatar {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
   }
 
   .user-menu {
@@ -607,7 +654,7 @@ body {
   }
   
   .toast-notice {
-    top: 60px;
+    top: 65px;
     right: 8px;
     left: 8px;
     font-size: 12px;
@@ -615,21 +662,34 @@ body {
   }
 }
 
-/* Cacher navigation sur écrans moyens aussi si nécessaire */
-@media (max-width: 360px) {
-  .nav-center {
-    display: none !important;
+/* Amélioration pour très petits écrans */
+@media (max-width: 280px) {
+  .navbar {
+    padding: 4px 6px;
+    height: 52px;
   }
   
-  .nav-right {
-    margin-left: auto;
+  .navbar-brand {
+    font-size: 10px;
   }
-}
-
-/* Cacher aussi sur écrans moyens si nécessaire */
-@media (max-width: 479px) {
-  .hidden-small {
-    display: none !important;
+  
+  .brand-text {
+    display: none;
+  }
+  
+  .nav-center {
+    display: none;
+  }
+  
+  .nav-action {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .nav-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
   }
 }
 
@@ -827,3 +887,5 @@ body {
 .btn-delete:hover {
   background: #dc2626;
 }
+
+
