@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import type { User } from '../types';
 import Spinner from '../components/Spinner';
@@ -8,6 +9,7 @@ const Follow = () => {
   const [suggestions, setSuggestions] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -64,7 +66,12 @@ const Follow = () => {
                 )}
               </div>
               <div className="suggestion-info">
-                <h3>{user.name}</h3>
+                <h3 
+                  className="clickable-name" 
+                  onClick={() => navigate(`/profile/${user._id}`)}
+                >
+                  {user.name}
+                </h3>
                 <p>{user.bio || 'Aucune bio'}</p>
               </div>
               <button onClick={() => handleFollow(user._id)} className="follow-button">

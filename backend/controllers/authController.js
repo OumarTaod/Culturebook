@@ -65,18 +65,42 @@ exports.profile = async (req, res) => {
 // Route POST /api/auth/refresh - Rafraîchissement du token JWT
 exports.refreshToken = async (req, res) => {
   try {
-    // req.user est déjà vérifié par le middleware d'authentification
-    // Génération d'un nouveau token avec la même durée de vie
-    const newToken = generateToken(req.user._id, req.user.role);
+    let token;
+    // Extraction du token depuis l'en-tête Authorization
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Token manquant' });
+    }
+    
+    // Décodage du token même s'il est expiré pour récupérer l'ID utilisateur
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+    
+    // Récupération de l'utilisateur
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Utilisateur non trouvé' });
+    }
+    
+    // Vérification que l'utilisateur n'est pas banni
+    if (user.banned) {
+      return res.status(403).json({ success: false, message: 'Compte banni' });
+    }
+    
+    // Génération d'un nouveau token
+    const newToken = generateToken(user._id, user.role);
+    
     // Retour du nouveau token et des informations utilisateur
     res.status(200).json({ 
       success: true, 
       token: newToken,
       user: { 
-        _id: req.user._id, 
-        name: req.user.name, 
-        email: req.user.email, 
-        role: req.user.role 
+        _id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
       }
     });
   } catch (err) {
