@@ -105,12 +105,14 @@ exports.likerPost = asyncHandler(async (req, res, next) => {
                 post: post._id,
             });
 
-            const receiverSocketId = req.onlineUsers.get(postAuthorId);
-            if (receiverSocketId) {
-                req.io.to(receiverSocketId).emit('newNotification', {
-                    message: `${req.user.name} a aimé votre publication.`,
-                    notification,
-                });
+            // Peupler la notification avec les données nécessaires
+            const populatedNotification = await Notification.findById(notification._id)
+                .populate('sender', 'name')
+                .populate('post', 'textContent');
+
+            const receiverSocketId = req.onlineUsers?.get(postAuthorId);
+            if (receiverSocketId && req.io) {
+                req.io.to(receiverSocketId).emit('newNotification', populatedNotification);
             }
         }
     }
@@ -159,12 +161,14 @@ exports.ajouterCommentaire = asyncHandler(async (req, res, next) => {
             post: post._id,
         });
 
-        const receiverSocketId = req.onlineUsers.get(postAuthorId);
-        if (receiverSocketId) {
-            req.io.to(receiverSocketId).emit('newNotification', {
-                message: `${req.user.name} a commenté votre publication.`,
-                notification,
-            });
+        // Peupler la notification avec les données nécessaires
+        const populatedNotification = await Notification.findById(notification._id)
+            .populate('sender', 'name')
+            .populate('post', 'textContent');
+
+        const receiverSocketId = req.onlineUsers?.get(postAuthorId);
+        if (receiverSocketId && req.io) {
+            req.io.to(receiverSocketId).emit('newNotification', populatedNotification);
         }
     }
 

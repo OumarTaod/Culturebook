@@ -5,17 +5,17 @@
 1. INTRODUCTION ET CONCEPT
 ================================================================================
 
-TITRE DU PROJET : CultureBook - Réseau Social Culturel Africain
+TITRE DU PROJET : CultureBook - Réseau Social Culturel Guinéen
 
 VISION :
-- Plateforme dédiée à la préservation et au partage du patrimoine culturel africain
+- Plateforme dédiée à la préservation et au partage du patrimoine culturel Guinéen
 - Connecter les communautés à travers leurs traditions, contes, proverbes et histoires
 - Créer un héritage numérique pour les générations futures
 
 MISSION :
-- Immortaliser les traditions orales africaines
+- Immortaliser les traditions orales guinéennes
 - Faciliter les échanges culturels entre régions
-- Promouvoir la diversité culturelle africaine
+- Promouvoir la diversité culturelle guinéenne
 
 2. FONCTIONNALITÉS PRINCIPALES
 ================================================================================

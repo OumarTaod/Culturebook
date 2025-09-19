@@ -24,6 +24,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   // Compteur de notifications non lues
   const [unreadCount, setUnreadCount] = useState(0);
+  // Compteur de messages non lus
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   // Message de notification toast temporaire
   const [toast, setToast] = useState<string>('');
   // État d'affichage du menu utilisateur déroulant
@@ -80,11 +82,23 @@ const Navbar = () => {
       } catch {}
     };
 
-    // Récupération initiale des notifications
+    // Fonction pour récupérer le nombre de messages non lus
+    const fetchUnreadMessages = async () => {
+      try {
+        const res = await api.get('/messages/unread-count');
+        setUnreadMessagesCount(res.data?.count || 0);
+      } catch {}
+    };
+
+    // Récupération initiale des notifications et messages
     fetchUnread();
+    fetchUnreadMessages();
 
     // Mise en place du polling pour vérifier périodiquement les nouvelles notifications
-    const id = setInterval(fetchUnread, POLL_MS);
+    const id = setInterval(() => {
+      fetchUnread();
+      fetchUnreadMessages();
+    }, POLL_MS);
 
     // Connexion Socket.IO pour les notifications en temps réel
     socketService.connect();
@@ -103,15 +117,30 @@ const Navbar = () => {
       setTimeout(() => setToast(''), 4000);
     });
 
-    // Remise à zéro du compteur quand on consulte la page des notifications
+    // Écouter les nouveaux messages
+    const unsubMessage = socketService.onMessage((message) => {
+      // Incrémenter le compteur si ce n'est pas notre message
+      if (message.sender._id !== user?._id) {
+        setUnreadMessagesCount((c) => c + 1);
+        // Toast pour nouveau message
+        setToast(`Nouveau message de ${message.sender.name}`);
+        setTimeout(() => setToast(''), 4000);
+      }
+    });
+
+    // Remise à zéro des compteurs selon la page consultée
     if (location.pathname === '/notifications') {
       setUnreadCount(0);
+    }
+    if (location.pathname === '/messages') {
+      setUnreadMessagesCount(0);
     }
 
     // Nettoyage lors du démontage du composant
     return () => {
       clearInterval(id); // Arrêt du polling
       unsub(); // Déconnexion des notifications Socket.IO
+      unsubMessage(); // Déconnexion des messages Socket.IO
       // Note: on ne déconnecte pas complètement le socket car d'autres pages peuvent l'utiliser
     };
   }, [isAuthenticated, location.pathname]);
@@ -237,10 +266,13 @@ const Navbar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/messages" className={getNavLinkClass} aria-label="Messages">
+              <NavLink to="/messages" className={getNavLinkClass} aria-label="Messages" style={{ position: 'relative' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
+                {unreadMessagesCount > 0 && (
+                  <span className="nav-badge" aria-label={`${unreadMessagesCount} messages non lus`}>{unreadMessagesCount}</span>
+                )}
               </NavLink>
             </li>
             <li className="hidden-small">

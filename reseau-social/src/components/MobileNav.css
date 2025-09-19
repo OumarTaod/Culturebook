@@ -41,14 +41,14 @@
   }
   
   .mobile-nav-link:hover {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
+    color: #CE1126;
+    background: rgba(206, 17, 38, 0.1);
     transform: translateY(-1px);
   }
   
   .mobile-nav-link.active {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.15);
+    color: #CE1126;
+    background: rgba(206, 17, 38, 0.15);
   }
   
   .mobile-nav-link svg {
@@ -66,7 +66,7 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, #CE1126, #FCD116);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -115,14 +115,14 @@
   }
   
   .mobile-nav-link:hover {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
+    color: #CE1126;
+    background: rgba(206, 17, 38, 0.1);
     transform: translateY(-1px);
   }
   
   .mobile-nav-link.active {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.15);
+    color: #CE1126;
+    background: rgba(206, 17, 38, 0.15);
   }
   
   .mobile-nav-link svg {
@@ -140,7 +140,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, #CE1126, #FCD116);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,14 +189,14 @@
   }
   
   .mobile-nav-link:hover {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
+    color: #CE1126;
+    background: rgba(206, 17, 38, 0.1);
     transform: translateY(-1px);
   }
   
   .mobile-nav-link.active {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.15);
+    color: #CE1126;
+    background: rgba(206, 17, 38, 0.15);
   }
   
   .mobile-nav-link svg {
@@ -214,7 +214,7 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, #CE1126, #FCD116);
     display: flex;
     align-items: center;
     justify-content: center;

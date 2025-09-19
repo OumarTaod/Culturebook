@@ -15,7 +15,17 @@ const MessageSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    }
+    },
+    readBy: [{
+        user: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User'
+        },
+        readAt: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 }, {
     timestamps: true
 });

@@ -22,13 +22,13 @@
 /* ========== VARIABLES CSS GLOBALES ========== */
 /* Définition de toutes les variables de design : couleurs, espacements, rayons, ombres, typographie */
 :root {
-  /* Colors */
-  --color-primary: #4f46e5;
-  --color-primary-600: #4338ca;
-  --color-accent: #06b6d4;
-  --color-success: #16a34a;
-  --color-danger: #dc2626;
-  --color-warning: #d97706;
+  /* Colors - Thème Guinée-Conakry */
+  --color-primary: #CE1126; /* Rouge du drapeau guinéen */
+  --color-primary-600: #B01020; /* Rouge plus foncé */
+  --color-accent: #FCD116; /* Jaune du drapeau guinéen */
+  --color-success: #009639; /* Vert du drapeau guinéen */
+  --color-danger: #CE1126; /* Rouge guinéen pour les erreurs */
+  --color-warning: #FCD116; /* Jaune guinéen pour les avertissements */
 
   --color-bg: #f5f7fb;
   --color-surface: #ffffff;
@@ -102,14 +102,18 @@ html { font-size: var(--font-size-base); }
 
 body {
   margin: 0;
-  padding-top: 0 !important; /* Pas de padding, géré par les conteneurs */
+  padding-top: 0 !important;
   font-family: var(--font-sans);
   color: var(--color-text);
   line-height: var(--line-height-base);
   background:
-    radial-gradient(1000px 400px at 10% -20%, rgba(79, 70, 229, 0.06), transparent 60%),
-    radial-gradient(1200px 500px at 110% -10%, rgba(6, 182, 212, 0.06), transparent 60%),
-    var(--color-bg);
+    linear-gradient(135deg, rgba(0, 150, 57, 0.12) 0%, rgba(252, 209, 22, 0.15) 40%, rgba(206, 17, 38, 0.08) 100%),
+    radial-gradient(circle at 20% 80%, rgba(0, 150, 57, 0.15), transparent 60%),
+    radial-gradient(circle at 80% 20%, rgba(252, 209, 22, 0.18), transparent 60%),
+    radial-gradient(circle at 40% 40%, rgba(206, 17, 38, 0.08), transparent 70%),
+    linear-gradient(45deg, #f8fafc 0%, #f1f5f9 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 /* ========== SYSTÈME RESPONSIVE COMPLET ========== */
@@ -266,11 +270,11 @@ p { margin: 0 0 var(--space-3); color: var(--color-text); }
 
 /* Links */
 a {
-  color: var(--color-primary);
+  color: var(--color-success);
   text-decoration: none;
   transition: color .2s ease;
 }
-a:hover { color: var(--color-primary-600); text-decoration: underline; }
+a:hover { color: #007A2E; text-decoration: underline; }
 
 /* Buttons */
 button, .btn {
@@ -278,26 +282,59 @@ button, .btn {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 20px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   color: #fff;
-  background: var(--color-primary);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, #009639 0%, #00A642 100%);
+  box-shadow: 
+    0 4px 15px rgba(0, 150, 57, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   font-weight: 600;
   cursor: pointer;
-  transition: transform .06s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all .3s ease;
 }
-button:hover, .btn:hover { background: var(--color-primary-600); box-shadow: var(--shadow-md); }
-button:active, .btn:active { transform: translateY(1px); }
+
+button::before, .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(252, 209, 22, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+button:hover, .btn:hover { 
+  background: linear-gradient(135deg, #007A2E 0%, #009639 100%);
+  box-shadow: 
+    0 6px 20px rgba(0, 150, 57, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+button:hover::before, .btn:hover::before {
+  left: 100%;
+}
+
+button:active, .btn:active { transform: translateY(0); }
 button:disabled, .btn:disabled { opacity: .6; cursor: not-allowed; }
 
 .btn-outline {
-  background: transparent;
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  color: var(--color-success);
+  border: 2px solid var(--color-success);
+  backdrop-filter: blur(10px);
 }
-.btn-outline:hover { color: #fff; background: var(--color-primary); }
+.btn-outline:hover { 
+  color: #fff; 
+  background: linear-gradient(135deg, #009639 0%, #007A2E 100%);
+  border-color: #009639;
+}
 
 .btn-danger { background: var(--color-danger); }
 .btn-danger:hover { background: #b91c1c; }
@@ -314,17 +351,35 @@ input, select, textarea {
   transition: border-color .2s ease, box-shadow .2s ease;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(0, 150, 57, 0.15);
 }
 
 /* Cards & Surfaces */
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(0, 150, 57, 0.15);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  box-shadow: 
+    0 8px 32px rgba(0, 150, 57, 0.12),
+    0 4px 16px rgba(252, 209, 22, 0.08),
+    0 2px 8px rgba(206, 17, 38, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   padding: var(--space-6);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #CE1126 33%, #FCD116 33% 66%, #009639 66%);
+  opacity: 0.8;
 }
 
 /* ========== LAYOUT HELPERS RESPONSIVE ========== */
@@ -401,13 +456,13 @@ html { scroll-behavior: smooth; }
 /* Scrollbar (Webkit) */
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
+  background: linear-gradient(180deg, var(--color-success), var(--color-accent));
   border-radius: var(--radius-full);
 }
 *::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
 
 /* Selection */
-::selection { background: rgba(79, 70, 229, 0.18); }
+::selection { background: rgba(0, 150, 57, 0.2); }
 
 /* ========== UTILITY CLASSES RESPONSIVE ========== */
 

@@ -25,13 +25,16 @@ interface Conversation {
   lastMessage?: {
     content: string;
     createdAt: string;
+    sender?: string;
   };
+  unreadCount?: number;
 }
 
 const Messages = () => {
   const { user } = useAuth();
   const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({});
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -64,6 +67,10 @@ const Messages = () => {
     try {
       const response = await api.get('/messages/conversations');
       setConversations(response.data.data);
+      
+      // Récupérer le nombre de messages non lus pour chaque conversation
+      const unreadResponse = await api.get('/messages/unread-counts');
+      setUnreadCounts(unreadResponse.data.counts || {});
     } catch (err) {
       setError('Erreur lors du chargement des conversations');
       console.error(err);
@@ -74,6 +81,15 @@ const Messages = () => {
     try {
       const response = await api.get(`/messages/conversations/${conversationId}`);
       setMessages(response.data.data);
+      
+      // Marquer les messages comme lus
+      await api.put(`/messages/conversations/${conversationId}/mark-read`);
+      
+      // Mettre à jour le compteur local
+      setUnreadCounts(prev => ({
+        ...prev,
+        [conversationId]: 0
+      }));
     } catch (err) {
       setError('Erreur lors du chargement des messages');
       console.error(err);
@@ -94,12 +110,26 @@ const Messages = () => {
         if (idx === -1) return prev;
         const copy = [...prev];
         const conv = { ...copy[idx] };
-        conv.lastMessage = { content: message.content, createdAt: message.createdAt };
+        conv.lastMessage = { 
+          content: message.content, 
+          createdAt: message.createdAt,
+          sender: message.sender._id
+        };
         copy.splice(idx, 1);
         return [conv, ...copy];
       });
 
-      // Ajouter le message immédiatement
+      // Incrémenter le compteur de messages non lus si ce n'est pas notre message
+      // et si on n'est pas dans cette conversation
+      if (message.sender._id !== currentUserIdRef.current && 
+          selectedConversationRef.current !== message.conversation) {
+        setUnreadCounts(prev => ({
+          ...prev,
+          [message.conversation]: (prev[message.conversation] || 0) + 1
+        }));
+      }
+
+      // Ajouter le message immédiatement si on est dans la conversation
       if (selectedConversationRef.current === message.conversation) {
         setMessages(prev => {
           const withoutTemp = prev.filter(m => !m._id.startsWith('temp-'));
@@ -107,6 +137,14 @@ const Messages = () => {
           if (exists) return prev;
           return [...withoutTemp, message];
         });
+        
+        // Marquer automatiquement comme lu si on est dans la conversation
+        try {
+          await api.put(`/messages/conversations/${message.conversation}/mark-read`);
+        } catch (err) {
+          console.error('Erreur lors du marquage comme lu:', err);
+        }
+        
         setTimeout(() => {
           messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -157,6 +195,24 @@ const Messages = () => {
       }, 100);
     }
   }, [selectedConversation, fetchMessages]);
+
+  // Marquer les messages comme lus quand on entre dans une conversation
+  useEffect(() => {
+    if (selectedConversation && unreadCounts[selectedConversation] > 0) {
+      const markAsRead = async () => {
+        try {
+          await api.put(`/messages/conversations/${selectedConversation}/mark-read`);
+          setUnreadCounts(prev => ({
+            ...prev,
+            [selectedConversation]: 0
+          }));
+        } catch (err) {
+          console.error('Erreur lors du marquage comme lu:', err);
+        }
+      };
+      markAsRead();
+    }
+  }, [selectedConversation, unreadCounts]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -293,6 +349,10 @@ const Messages = () => {
     return otherParticipant?.name || 'Utilisateur';
   };
 
+  const isConversationUnread = (conversationId: string) => {
+    return (unreadCounts[conversationId] || 0) > 0;
+  };
+
   const isUserOnline = (conversation: Conversation) => {
     const otherParticipant = conversation.participants.find((p) => p._id !== user?._id);
     return !!(otherParticipant && onlineUsers.includes(otherParticipant._id));
@@ -334,34 +394,46 @@ const Messages = () => {
             className="search-input"
           />
         </div>
-        {filteredConversations.map((conversation) => (
-          <div
-            key={conversation._id}
-            className={`conversation-item ${selectedConversation === conversation._id ? 'selected' : ''}`}
-            onClick={() => {
-              setSelectedConversation(conversation._id);
-              if (isMobile) setShowConversationList(false);
-            }}
-          >
-            <div className="conversation-avatar">
-              {getOtherParticipant(conversation)[0]?.toUpperCase()}
-              {isUserOnline(conversation) && <span className="online-dot" />}
-            </div>
-            <div className="conversation-info">
-              <div className="conversation-header">
-                <div className="conversation-name">
-                  {getOtherParticipant(conversation)}
+        {filteredConversations.map((conversation) => {
+          const unreadCount = unreadCounts[conversation._id] || 0;
+          const isUnread = unreadCount > 0;
+          
+          return (
+            <div
+              key={conversation._id}
+              className={`conversation-item ${
+                selectedConversation === conversation._id ? 'selected' : ''
+              } ${isUnread ? 'unread' : ''}`}
+              onClick={() => {
+                setSelectedConversation(conversation._id);
+                if (isMobile) setShowConversationList(false);
+              }}
+            >
+              <div className="conversation-avatar">
+                {getOtherParticipant(conversation)[0]?.toUpperCase()}
+                {isUserOnline(conversation) && <span className="online-dot" />}
+              </div>
+              <div className="conversation-info">
+                <div className="conversation-header">
+                  <div className="conversation-name">
+                    {getOtherParticipant(conversation)}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {conversation.lastMessage && (
+                      <div className="conversation-time">{formatDate(conversation.lastMessage.createdAt)}</div>
+                    )}
+                    {isUnread && (
+                      <div className="unread-badge">{unreadCount}</div>
+                    )}
+                  </div>
                 </div>
                 {conversation.lastMessage && (
-                  <div className="conversation-time">{formatDate(conversation.lastMessage.createdAt)}</div>
+                  <div className="conversation-last-message">{conversation.lastMessage.content}</div>
                 )}
               </div>
-              {conversation.lastMessage && (
-                <div className="conversation-last-message">{conversation.lastMessage.content}</div>
-              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className={`messages-content ${isMobile && showConversationList ? 'hidden' : ''}`}>

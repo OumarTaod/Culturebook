@@ -99,9 +99,7 @@ const UserSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    resetPasswordToken: String,
-    resetPasswordExpires: Date
+    }
 });
 
 // ========== MIDDLEWARE DE CRYPTAGE ==========

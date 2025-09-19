@@ -109,13 +109,14 @@ Le design utilise CSS Grid pour l'en-tête et Flexbox pour les autres sections.
 .edit-button {
   align-self: flex-start; /* Alignement à gauche */
   padding: 10px 16px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); /* Dégradé */
+  background: linear-gradient(135deg, #009639 0%, #00A642 100%); /* Dégradé vert */
   color: white;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: filter 0.2s, transform .06s ease; /* Animations fluides */
   font-weight: 800; /* Texte en gras */
+  box-shadow: 0 2px 8px rgba(0, 150, 57, 0.3);
 }
 
 /* Effets d'interaction du bouton */
@@ -144,15 +145,16 @@ Le design utilise CSS Grid pour l'en-tête et Flexbox pour les autres sections.
 }
 
 .follow-button.not-following {
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  background: linear-gradient(135deg, #009639 0%, #00A642 100%);
   color: white;
   border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 150, 57, 0.3);
 }
 
 .follow-button.following {
   background: transparent;
-  color: #ef4444;
-  border-color: #ef4444;
+  color: #CE1126;
+  border-color: #CE1126;
 }
 
 .follow-button:hover {
@@ -160,15 +162,15 @@ Le design utilise CSS Grid pour l'en-tête et Flexbox pour les autres sections.
 }
 
 .follow-button.following:hover {
-  background: #ef4444;
+  background: #CE1126;
   color: white;
 }
 
 /* Bouton de message */
 .message-button {
   background: transparent;
-  color: var(--color-primary);
-  border: 2px solid var(--color-primary);
+  color: #009639;
+  border: 2px solid #009639;
   padding: 10px 16px;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -177,8 +179,9 @@ Le design utilise CSS Grid pour l'en-tête et Flexbox pour les autres sections.
 }
 
 .message-button:hover {
-  background: var(--color-primary);
+  background: #009639;
   color: white;
+  box-shadow: 0 2px 8px rgba(0, 150, 57, 0.3);
 }
 
 .message-button:disabled {

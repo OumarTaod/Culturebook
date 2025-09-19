@@ -52,15 +52,59 @@ const initializeSocket = (io) => {
                     conversation = await Conversation.create({ participants: [socket.user.id, receiverId] });
                 }
 
-                const newMessage = await Message.create({ conversation: conversation._id, sender: socket.user.id, content });
+                // Créer le message avec readBy pour l'expéditeur
+                const newMessage = await Message.create({ 
+                    conversation: conversation._id, 
+                    sender: socket.user.id, 
+                    content,
+                    readBy: [{
+                        user: socket.user.id,
+                        readAt: new Date()
+                    }]
+                });
+                
                 await Conversation.findByIdAndUpdate(conversation._id, { lastMessage: newMessage._id });
 
+                // Peupler le message avec les infos du sender
+                const populatedMessage = await Message.findById(newMessage._id).populate('sender', 'name');
+
+                // Envoyer le message au destinataire
                 const receiverSocketId = onlineUsers.get(receiverId);
                 if (receiverSocketId) {
-                    io.to(receiverSocketId).emit('newMessage', newMessage);
+                    io.to(receiverSocketId).emit('newMessage', populatedMessage);
                 }
+                
+                // Confirmer l'envoi à l'expéditeur
+                socket.emit('messageConfirmed', populatedMessage);
             } catch (error) {
                 console.error("Erreur lors de l'envoi du message:", error);
+                socket.emit('messageError', { error: 'Erreur lors de l\'envoi du message' });
+            }
+        });
+
+        // Gérer l'indicateur de frappe
+        socket.on('typing', ({ conversationId }) => {
+            socket.to(conversationId).emit('userTyping', {
+                userId: socket.user.id,
+                name: socket.user.name
+            });
+        });
+
+        socket.on('stopTyping', ({ conversationId }) => {
+            socket.to(conversationId).emit('userStoppedTyping', {
+                userId: socket.user.id
+            });
+        });
+
+        // Rejoindre les conversations de l'utilisateur
+        socket.on('joinConversations', async () => {
+            try {
+                const conversations = await Conversation.find({ participants: socket.user.id });
+                conversations.forEach(conv => {
+                    socket.join(conv._id.toString());
+                });
+            } catch (error) {
+                console.error('Erreur lors de la jointure des conversations:', error);
             }
         });
 

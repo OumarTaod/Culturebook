@@ -14,9 +14,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetMessage, setResetMessage] = useState('');
+
   const { login } = useAuth();
   const passwordMismatch = isRegistering && confirmPassword.length > 0 && password !== confirmPassword;
   const isRegisterDisabled = isRegistering && (
@@ -204,49 +202,9 @@ const Login = () => {
         <button onClick={() => setIsRegistering(!isRegistering)} className="toggle-button">
           {isRegistering ? 'Déjà un compte ? Se connecter' : "Pas de compte ? S'inscrire"}
         </button>
-        {!isRegistering && (
-          <button 
-            type="button" 
-            onClick={() => setShowForgotPassword(true)} 
-            className="forgot-password-link"
-          >
-            Mot de passe oublié ?
-          </button>
-        )}
+
       </div>
-      
-      {showForgotPassword && (
-        <div className="modal-overlay" onClick={() => setShowForgotPassword(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Récupération du mot de passe</h3>
-            <p>Entrez votre email pour recevoir un lien de réinitialisation</p>
-            <input
-              type="email"
-              placeholder="Votre email"
-              value={resetEmail}
-              onChange={(e) => setResetEmail(e.target.value)}
-              className="reset-input"
-            />
-            {resetMessage && <p className="reset-message">{resetMessage}</p>}
-            <div className="modal-buttons">
-              <button onClick={() => setShowForgotPassword(false)}>Annuler</button>
-              <button onClick={async () => {
-                try {
-                  const response = await api.post('/auth/forgot-password', { email: resetEmail });
-                  if (response.data.resetLink) {
-                    setResetMessage(`Lien de récupération: ${response.data.resetLink}`);
-                  } else {
-                    setResetMessage('Email de récupération envoyé !');
-                    setTimeout(() => setShowForgotPassword(false), 2000);
-                  }
-                } catch (err: any) {
-                  setResetMessage(err.response?.data?.message || 'Erreur lors de l\'envoi');
-                }
-              }}>Envoyer</button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

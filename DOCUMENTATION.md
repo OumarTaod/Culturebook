@@ -247,3 +247,30 @@ VITE_API_URL=http://localhost:5000/api
 ---
 
 *Cette documentation est maintenue à jour avec l'évolution du projet. Pour toute question ou contribution, consultez l'équipe de développement.*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd "c:\Users\Oumar diallo\Desktop\DossierSimplon\Recyle1\Recyclage\backend" && node scripts/createAdmin.js --name "Super Admin" --email "superadmin@culturebook.gn" --password "SuperAdmin2024!" --role superadmin
+Compte superadmin créé: { email: 'superadmin@culturebook.gn', name: 'Super Admin' }

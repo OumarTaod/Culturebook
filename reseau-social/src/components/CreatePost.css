@@ -1,17 +1,39 @@
 /* CreatePost layout */
 .create-post-card { 
   width: 100%; 
-  border: 1px solid #e5e7eb; 
+  border: 1px solid rgba(0, 150, 57, 0.15); 
   border-radius: 12px; 
   padding: 16px; 
-  background: #fff; 
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06); 
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)); 
+  box-shadow: 
+    0 8px 25px rgba(0, 150, 57, 0.12),
+    0 4px 12px rgba(252, 209, 22, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.create-post-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #CE1126 33%, #FCD116 33% 66%, #009639 66%);
+  opacity: 0.8;
 }
 
 .create-post-card h3 {
   margin: 0 0 12px 0;
   font-size: 18px;
   color: #111827;
+  background: linear-gradient(135deg, #009639, #007A2E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
 }
 
 .create-post-card form { 
@@ -24,10 +46,18 @@
   width: 100%; 
   resize: vertical; 
   padding: 12px; 
-  border: 1px solid #e5e7eb; 
+  border: 1px solid rgba(0, 150, 57, 0.2); 
   border-radius: 8px;
   font-size: 14px;
   min-height: 80px;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.create-post-card textarea:focus {
+  border-color: #009639;
+  box-shadow: 0 0 0 3px rgba(0, 150, 57, 0.15);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .create-post-footer { 

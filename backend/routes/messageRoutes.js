@@ -10,5 +10,8 @@ router.get('/conversations', getConversations);
 router.get('/conversations/:conversationId', getMessages);
 router.post('/conversations/with/:userId', getOrCreateConversationWithUser);
 router.delete('/:messageId', deleteMessage);
+router.get('/unread-count', require('../controllers/messageController').getUnreadMessagesCount);
+router.get('/unread-counts', require('../controllers/messageController').getUnreadCountsPerConversation);
+router.put('/conversations/:conversationId/mark-read', require('../controllers/messageController').markConversationAsRead);
 
 module.exports = router;

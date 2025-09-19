@@ -45,6 +45,8 @@ class SocketService {
 
     this.socket.on('connect', () => {
       console.log('Connecté au serveur Socket.IO');
+      // Rejoindre automatiquement les conversations de l'utilisateur
+      this.socket?.emit('joinConversations');
     });
 
     this.socket.on('connect_error', (error) => {
@@ -54,6 +56,16 @@ class SocketService {
     // Messages
     this.socket.on('newMessage', (message: Message) => {
       this.messageHandlers.forEach((handler) => handler(message));
+    });
+
+    // Confirmation d'envoi de message
+    this.socket.on('messageConfirmed', (message: Message) => {
+      this.messageHandlers.forEach((handler) => handler(message));
+    });
+
+    // Erreur d'envoi de message
+    this.socket.on('messageError', (error: any) => {
+      console.error('Erreur d\'envoi de message:', error);
     });
 
     // Notifications
@@ -66,7 +78,7 @@ class SocketService {
       this.typingHandlers.forEach((handler) => handler(data));
     });
 
-    this.socket.on('userStopTyping', (data) => {
+    this.socket.on('userStoppedTyping', (data) => {
       this.stopTypingHandlers.forEach((handler) => handler(data));
     });
 

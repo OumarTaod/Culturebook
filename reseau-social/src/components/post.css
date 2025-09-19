@@ -1,13 +1,13 @@
 /* Post component styles */
 :root {
-  --card-bg: #ffffff;
-  --card-border: #e5e7eb;
+  --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+  --card-border: rgba(0, 150, 57, 0.15);
   --text: #111827;
   --text-muted: #6b7280;
   --text-subtle: #9ca3af;
-  --accent: #2563eb;
-  --like: #ef4444;
-  --shadow: 0 6px 18px rgba(0,0,0,0.08);
+  --accent: #009639;
+  --like: #CE1126;
+  --shadow: 0 8px 25px rgba(0, 150, 57, 0.12), 0 4px 12px rgba(252, 209, 22, 0.08);
   --radius: 16px;
 }
 
@@ -20,8 +20,26 @@
   box-shadow: var(--shadow);
   overflow: hidden;
   transition: box-shadow .2s ease, transform .2s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
 }
-.post-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.12); }
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #CE1126 33%, #FCD116 33% 66%, #009639 66%);
+  opacity: 0.7;
+}
+.post-card:hover { 
+  box-shadow: 
+    0 12px 35px rgba(0, 150, 57, 0.15), 
+    0 6px 20px rgba(252, 209, 22, 0.1),
+    0 4px 15px rgba(206, 17, 38, 0.08);
+  transform: translateY(-2px);
+}
 
 .post-header {
   display: flex;
@@ -111,9 +129,11 @@
   border-radius: 999px;
   cursor: pointer;
 }
-.post-action-button:hover { background: #f3f4f6; }
+.post-action-button:hover { 
+  background: linear-gradient(135deg, rgba(0, 150, 57, 0.1), rgba(252, 209, 22, 0.05)); 
+}
 .post-action-button.liked { color: var(--like); }
-.post-action-button.saved { color: #10b981; }
+.post-action-button.saved { color: #009639; }
 
 /* Comments */
 .comment-section {
@@ -129,14 +149,15 @@
   font: inherit;
   outline: none;
 }
-.comment-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+.comment-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 150, 57, 0.15); }
 .comment-submit-btn {
   border: none;
-  background: var(--accent);
+  background: linear-gradient(135deg, #009639, #00A642);
   color: white;
   padding: 10px 14px;
   border-radius: 999px;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 150, 57, 0.3);
 }
 .comment-submit-btn:hover { filter: brightness(0.95); }
 
@@ -370,8 +391,8 @@
 
 .edit-textarea:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #009639;
+  box-shadow: 0 0 0 3px rgba(0, 150, 57, 0.15);
 }
 
 .edit-selects {
@@ -392,8 +413,8 @@
 
 .edit-selects select:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #009639;
+  box-shadow: 0 0 0 3px rgba(0, 150, 57, 0.15);
 }
 
 .edit-actions {
@@ -414,12 +435,14 @@
 }
 
 .save-btn {
-  background: #10b981;
+  background: linear-gradient(135deg, #009639, #00A642);
   color: white;
+  box-shadow: 0 2px 8px rgba(0, 150, 57, 0.3);
 }
 
 .save-btn:hover {
-  background: #059669;
+  background: linear-gradient(135deg, #007A2E, #009639);
+  box-shadow: 0 4px 12px rgba(0, 150, 57, 0.4);
 }
 
 .cancel-btn {
